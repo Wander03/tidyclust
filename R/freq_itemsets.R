@@ -34,7 +34,7 @@
 #' freq_itemsets()
 #' @export
 freq_itemsets <-
-  function(mode = "association",
+  function(mode = "partition", # will add other modes
            engine = "arules",
            method = "apriori",
            min_support = NULL) {
