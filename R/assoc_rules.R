@@ -171,5 +171,7 @@ translate_tidyclust.assoc_rules <- function(x, engine = x$engine, ...) {
   } else {
     stop("Invalid engine specified. Choose 'apriori' or 'eclat'.")
   }
+
+  attr(res, "items") <- data.frame(items = dimnames(data)[[2]])
   return(res)
 }

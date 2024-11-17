@@ -157,6 +157,33 @@ extract_cluster_assignment.hclust <- function(object,
   cluster_assignment_tibble(clusters, length(unique(clusters)), ...)
 }
 
+#' @export
+extract_cluster_assignment.freqitemsets <- function(object, ...) {
+  items <- attr(object, "items")
+  itemsets <- arules::inspect(object)
+
+  support <- itemsets$support
+  itemset_sizes <- sapply(strsplit(
+    gsub("[{}]", "", itemsets$items), ","),
+    length)
+
+  clusters <- sapply(1:nrow(items), function(i) {
+    current_itemset <- items[i,]
+
+    # Find relevant itemsets that contain the current itemset
+    relevant_itemsets <- which(
+      sapply(strsplit(gsub("[{}]", "", itemsets$items), ","),
+             function(x) current_itemset %in% x)
+      )
+
+    # Apply Highest Support with Largest Itemset Tiebreaker
+    relevant_itemsets[which.max(cbind(support[relevant_itemsets],
+                                      -itemset_sizes[relevant_itemsets]))[1]]
+  })
+
+  cluster_assignment_tibble(clusters, length(unique(clusters)), ...)
+}
+
 # ------------------------------------------------------------------------------
 
 cluster_assignment_tibble <- function(clusters,
