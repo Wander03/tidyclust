@@ -120,7 +120,7 @@ update.freq_itemsets <- function(object,
 check_args.freq_itemsets <- function(object) {
   args <- lapply(object$args, rlang::eval_tidy)
 
-  if (all(is.numeric(args$min_support)) && any(args$min_support >= 0) && any(args$min_support <= 1)) {
+  if (all(is.numeric(args$min_support)) && any(args$min_support < 0) && any(args$min_support > 1)) {
     rlang::abort("The minimum support should be between 0 and 1.")
   }
 
