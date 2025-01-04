@@ -158,6 +158,6 @@ translate_tidyclust.freq_itemsets <- function(x, engine = x$engine, ...) {
     stop("Invalid method specified. Choose 'apriori' or 'eclat'.")
   }
 
-  attr(res, "items") <- data.frame(items = dimnames(data)[[2]])
+  # attr(res, "items") <- data.frame(items = dimnames(data)[[2]])
   return(res)
 }
