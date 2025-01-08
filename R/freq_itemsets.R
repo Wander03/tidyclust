@@ -14,7 +14,7 @@
 #'   possible value for this model is "association".
 #' @param engine A single character string specifying the computational engine
 #'   to use for fitting. The default for this model is `"arules"`.
-#' @param method A single character string specifying the algorithm to use for
+#' @param mining_method A single character string specifying the algorithm to use for
 #'   fitting. Possible algorithms are `"apriori"` and `"eclat"`. The default for
 #'   this model is `"apriori"`.
 #' @param min_support Positive double, minimum support for an itemset (between 0 and 1).
@@ -36,10 +36,11 @@
 freq_itemsets <-
   function(mode = "partition", # will add other modes
            engine = "arules",
-           method = "apriori",
-           min_support = NULL) {
+           min_support = NULL,
+           mining_method = "apriori") {
     args <- list(
-      min_support = enquo(min_support)
+      min_support = enquo(min_support),
+      mining_method = enquo(mining_method)
     )
 
     new_cluster_spec(
@@ -73,6 +74,7 @@ print.freq_itemsets <- function(x, ...) {
 update.freq_itemsets <- function(object,
                                  parameters = NULL,
                                  min_support = NULL,
+                                 mining_method = NULL,
                                  fresh = FALSE, ...) {
   eng_args <- parsnip::update_engine_parameters(
     object$eng_args,
@@ -142,17 +144,17 @@ translate_tidyclust.freq_itemsets <- function(x, engine = x$engine, ...) {
 #'
 #' @param data A transaction data set.
 #' @param min_support Minimum support threshold.
-#' @param method Algorithm to use for mining frequent itemsets. Either "apriori" or "eclat".
+#' @param mining_method Algorithm to use for mining frequent itemsets. Either "apriori" or "eclat".
 #'
 #' @return A set of frequent itemsets based on the specified parameters.
 #' @keywords internal
 #' @export
 .freq_itemsets_fit_arules <- function(data,
                                       min_support = NULL,
-                                      method = "apriori") {
-  if (method == "apriori") {
+                                      mining_method = "apriori") {
+  if (mining_method == "apriori") {
     res <- arules::apriori(data, parameter = list(support = min_support, target = "frequent itemsets"))
-  } else if (method == "eclat") {
+  } else if (mining_method == "eclat") {
     res <- arules::eclat(data, parameter = list(support = min_support))
   } else {
     stop("Invalid method specified. Choose 'apriori' or 'eclat'.")
