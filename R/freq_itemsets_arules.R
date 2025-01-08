@@ -1,7 +1,6 @@
 #' Frequent Itemsets via arules
 #'
-#' [freq_itemsets()] creates K-means model. This engine uses the classical definition
-#' of a K-means model, which only takes numeric predictors.
+#' [freq_itemsets()] creates frequent itemset using Apriori or Eclat model
 #'
 # @includeRmd man/rmd/freq_itemsets_arules.md details
 #'
