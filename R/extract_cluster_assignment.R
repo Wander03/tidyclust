@@ -158,7 +158,7 @@ extract_cluster_assignment.hclust <- function(object,
 }
 
 #' @export
-extract_cluster_assignment.freqitemsets <- function(object, ...) {
+extract_cluster_assignment.itemsets <- function(object, ...) {
   items <- attr(object, "items")
   itemsets <- arules::inspect(object)
 

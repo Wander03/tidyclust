@@ -44,9 +44,9 @@ groceries <- as.data.frame(as(Groceries[1:100,], "matrix"))
 ## A Brief Introduction to Frequent Itemset Mining
 
 *Frequent Itemset Mining* is a fundamental technique in data mining that
-identifies sets of items that appear together frequently in
+identifies sets of items that frequently appear together in
 transactional datasets. These itemsets are often used to uncover
-meaningful patterns, such as associationsbetween items, which can then
+meaningful patterns, such as associations between items, which can then
 be leveraged to generate *association rules*.
 
 For example, in a supermarket transaction database, frequent itemset
@@ -70,8 +70,8 @@ algorithm and the **Eclat** algorithm.
 #### Finding Frequent Itemsets with the Apriori Algorithm
 
 The *Apriori* algorithm is one of the earliest and most widely known
-methods for frequent itemset mining. It is based on the **Apriori
-Principle** (also known as **Downward Closure Property**): any subset of
+methods for frequent itemset mining. It is based on the **Apriori Principle** 
+(also known as **Downward Closure Property**): any subset of
 a frequent itemset must also be frequent.
 
 #### Process of the Apriori Algorithm
@@ -81,7 +81,7 @@ a frequent itemset must also be frequent.
     called *frequent 1-itemsets*.
 
 2.  **Candidate Generation**: Use the frequent itemsets from the
-    previous step to generate candidate itemsets of the next size (e.g.,
+    previous step to generate candidate itemsets of the next size (e.g.
     combine frequent 1-itemsets to create candidate 2-itemsets).
 
 3.  **Prune Candidates**: Eliminate candidate itemsets that have subsets
@@ -165,12 +165,23 @@ method is apriori.
 We fit the model to the data in the usual way:
 
 ```{r}
-# fi_fit <- fi_spec %>%
-#   fit(~ .,
-#     data = groceries
-# 
-# fi_fit %>%
-#   summary()
+fi_fit <- fi_spec %>%
+  fit(~ .,
+    data = groceries
+  )
+
+fi_fit %>%
+  summary()
+
+
+
+
+fi_fit %>%
+  extract_cluster_assignment()
+
+fi_fit$fit|> str()
+
+
 ```
 
 ## Prediction

@@ -143,23 +143,31 @@ translate_tidyclust.freq_itemsets <- function(x, engine = x$engine, ...) {
 #' or `arules::eclat` for frequent itemsets mining, depending on the chosen method.
 #'
 #' @param data A transaction data set.
-#' @param min_support Minimum support threshold.
+#' @param support Minimum support threshold.
 #' @param mining_method Algorithm to use for mining frequent itemsets. Either "apriori" or "eclat".
 #'
 #' @return A set of frequent itemsets based on the specified parameters.
 #' @keywords internal
 #' @export
 .freq_itemsets_fit_arules <- function(data,
-                                      min_support = NULL,
+                                      support = NULL,
                                       mining_method = "apriori") {
+
+  if (is.null(support)) {
+    rlang::abort(
+      "Please specify `min_support` to be able to fit specification.",
+      call = call("fit")
+    )
+  }
+
   if (mining_method == "apriori") {
-    res <- arules::apriori(data, parameter = list(support = min_support, target = "frequent itemsets"))
+    res <- arules::apriori(data, parameter = list(support = support, target = "frequent itemsets"))
   } else if (mining_method == "eclat") {
-    res <- arules::eclat(data, parameter = list(support = min_support))
+    res <- arules::eclat(data, parameter = list(support = support))
   } else {
     stop("Invalid method specified. Choose 'apriori' or 'eclat'.")
   }
 
-  # attr(res, "items") <- data.frame(items = dimnames(data)[[2]])
+  attr(res, "items") <- colnames(data)
   return(res)
 }
