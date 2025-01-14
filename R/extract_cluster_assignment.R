@@ -167,8 +167,8 @@ extract_cluster_assignment.itemsets <- function(object, ...) {
     gsub("[{}]", "", itemsets$items), ","),
     length)
 
-  clusters <- sapply(1:nrow(items), function(i) {
-    current_itemset <- items[i,]
+  clusters <- sapply(1:length(items), function(i) {
+    current_itemset <- items[i]
 
     # Find relevant itemsets that contain the current itemset
     relevant_itemsets <- which(
@@ -176,12 +176,17 @@ extract_cluster_assignment.itemsets <- function(object, ...) {
              function(x) current_itemset %in% x)
       )
 
+    # If item has no frequent itemsets, assign the item to its own cluster
+    if(length(relevant_itemsets) == 0) {
+      return(0)
+    }
+
     # Apply Highest Support with Largest Itemset Tiebreaker
     relevant_itemsets[which.max(cbind(support[relevant_itemsets],
                                       -itemset_sizes[relevant_itemsets]))[1]]
   })
 
-  cluster_assignment_tibble(clusters, length(unique(clusters)), ...)
+  cluster_assignment_tibble_w_outliers(clusters, length(unique(clusters)), ...)
 }
 
 # ------------------------------------------------------------------------------
@@ -194,5 +199,24 @@ cluster_assignment_tibble <- function(clusters,
   names <- paste0(prefix, seq_len(n_clusters))
   res <- names[reorder_clusts][clusters]
 
+  tibble::tibble(.cluster = factor(res))
+}
+
+cluster_assignment_tibble_w_outliers <- function(clusters,
+                                                 n_clusters,
+                                                 ...,
+                                                 prefix = "Cluster_") {
+  reorder_clusts <- order(union(unique(clusters), 0:(n_clusters-1)))
+  names <- paste0(prefix, 0:(n_clusters-1))
+  res <- names[reorder_clusts][clusters+1]
+  zero_count <- 0
+  res <- sapply(res, function(x) {
+    if (x == "Cluster_0") {
+      zero_count <<- zero_count + 1
+      paste0("Cluster_0_", zero_count)
+    } else {
+      x
+    }
+  })
   tibble::tibble(.cluster = factor(res))
 }

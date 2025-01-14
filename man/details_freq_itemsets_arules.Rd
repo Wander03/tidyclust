@@ -4,7 +4,6 @@
 \alias{details_freq_itemsets_arules}
 \title{Frequent Itemsets via arules}
 \description{
-\code{\link[=freq_itemsets]{freq_itemsets()}} creates K-means model. This engine uses the classical definition
-of a K-means model, which only takes numeric predictors.
+\code{\link[=freq_itemsets]{freq_itemsets()}} creates frequent itemset using Apriori or Eclat model
 }
 \keyword{internal}

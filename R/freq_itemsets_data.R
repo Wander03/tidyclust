@@ -27,8 +27,7 @@ make_freq_itemsets <- function() {
     mode = "partition",
     value = list(
       interface = "matrix",
-      data = c(x = "data"),
-      protect = c("x", "min_support"),
+      protect = c("data"),
       func = c(pkg = "tidyclust", fun = ".freq_itemsets_fit_arules"),
       defaults = list()
     )
@@ -50,8 +49,17 @@ make_freq_itemsets <- function() {
     model = "freq_itemsets",
     eng = "arules",
     exposed = "min_support",
-    original = "support",
+    original = "min_support",
     func = list(pkg = "dials", fun = "min_support"),
+    has_submodel = TRUE
+  )
+
+  modelenv::set_model_arg(
+    model = "freq_itemsets",
+    eng = "arules",
+    exposed = "mining_method",
+    original = "mining_method",
+    func = list(pkg = "tidyclust", fun = "mining_method"),
     has_submodel = TRUE
   )
 

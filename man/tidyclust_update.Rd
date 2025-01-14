@@ -18,7 +18,14 @@
   ...
 )
 
-\method{update}{freq_itemsets}(object, parameters = NULL, min_support = NULL, fresh = FALSE, ...)
+\method{update}{freq_itemsets}(
+  object,
+  parameters = NULL,
+  min_support = NULL,
+  mining_method = NULL,
+  fresh = FALSE,
+  ...
+)
 
 \method{update}{hier_clust}(
   object,

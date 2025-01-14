@@ -4,14 +4,14 @@
 \alias{.freq_itemsets_fit_arules}
 \title{Simple Wrapper around arules functions}
 \usage{
-.freq_itemsets_fit_arules(data, min_support = NULL, method = "apriori")
+.freq_itemsets_fit_arules(data, support = NULL, mining_method = NULL)
 }
 \arguments{
 \item{data}{A transaction data set.}
 
-\item{min_support}{Minimum support threshold.}
+\item{support}{Minimum support threshold.}
 
-\item{method}{Algorithm to use for mining frequent itemsets. Either "apriori" or "eclat".}
+\item{mining_method}{Algorithm to use for mining frequent itemsets. Either "apriori" or "eclat".}
 }
 \value{
 A set of frequent itemsets based on the specified parameters.

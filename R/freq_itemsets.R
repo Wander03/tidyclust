@@ -85,7 +85,8 @@ update.freq_itemsets <- function(object,
     parameters <- parsnip::check_final_param(parameters)
   }
   args <- list(
-    min_support = enquo(min_support)
+    min_support = enquo(min_support),
+    mining_method = enquo(mining_method)
   )
 
   args <- parsnip::update_main_parameters(args, parameters)
@@ -143,17 +144,17 @@ translate_tidyclust.freq_itemsets <- function(x, engine = x$engine, ...) {
 #' or `arules::eclat` for frequent itemsets mining, depending on the chosen method.
 #'
 #' @param data A transaction data set.
-#' @param support Minimum support threshold.
+#' @param min_support Minimum support threshold.
 #' @param mining_method Algorithm to use for mining frequent itemsets. Either "apriori" or "eclat".
 #'
 #' @return A set of frequent itemsets based on the specified parameters.
 #' @keywords internal
 #' @export
-.freq_itemsets_fit_arules <- function(data,
-                                      support = NULL,
-                                      mining_method = "apriori") {
+.freq_itemsets_fit_arules <- function(x,
+                                      min_support = NULL,
+                                      mining_method = NULL) {
 
-  if (is.null(support)) {
+  if (is.null(min_support)) {
     rlang::abort(
       "Please specify `min_support` to be able to fit specification.",
       call = call("fit")
@@ -161,13 +162,13 @@ translate_tidyclust.freq_itemsets <- function(x, engine = x$engine, ...) {
   }
 
   if (mining_method == "apriori") {
-    res <- arules::apriori(data, parameter = list(support = support, target = "frequent itemsets"))
+    res <- arules::apriori(data = x, parameter = list(support = min_support, target = "frequent itemsets"))
   } else if (mining_method == "eclat") {
-    res <- arules::eclat(data, parameter = list(support = support))
+    res <- arules::eclat(data = x, parameter = list(support = min_support))
   } else {
     stop("Invalid method specified. Choose 'apriori' or 'eclat'.")
   }
 
-  attr(res, "items") <- colnames(data)
+  attr(res, "items") <- colnames(x)
   return(res)
 }

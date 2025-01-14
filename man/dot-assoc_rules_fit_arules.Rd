@@ -6,17 +6,17 @@
 \usage{
 .assoc_rules_fit_arules(
   x,
-  min_support = NULL,
-  min_confidence = NULL,
-  method = "apriori"
+  support = NULL,
+  confidence = NULL,
+  mining_method = "apriori"
 )
 }
 \arguments{
-\item{min_support}{Minimum support threshold.}
+\item{support}{Minimum support threshold.}
 
-\item{min_confidence}{Minimum confidence threshold.}
+\item{confidence}{Minimum confidence threshold.}
 
-\item{method}{Algorithm to use for mining frequent itemsets. Either "apriori" or "eclat".}
+\item{mining_method}{Algorithm to use for mining frequent itemsets. Either "apriori" or "eclat".}
 
 \item{data}{A transaction data set.}
 }
