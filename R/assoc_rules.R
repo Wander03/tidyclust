@@ -150,28 +150,43 @@ translate_tidyclust.assoc_rules <- function(x, engine = x$engine, ...) {
 #' or `arules::eclat` for association rules mining, depending on the chosen method.
 #'
 #' @param data A transaction data set.
-#' @param min_support Minimum support threshold.
-#' @param min_confidence Minimum confidence threshold.
-#' @param method Algorithm to use for mining frequent itemsets. Either "apriori" or "eclat".
+#' @param support Minimum support threshold.
+#' @param confidence Minimum confidence threshold.
+#' @param mining_method Algorithm to use for mining frequent itemsets. Either "apriori" or "eclat".
 #'
 #' @return A set of association rules based on the specified parameters.
 #' @keywords internal
 #' @export
 .assoc_rules_fit_arules <- function(x,
-                                    min_support = NULL,
-                                    min_confidence = NULL,
-                                    method = "apriori") {
-  if (method == "apriori") {
-    res <- arules::apriori(data, parameter = list(support = min_support, confidence = min_confidence, target = "rules"))
-  } else if (method == "eclat") {
+                                    support = NULL,
+                                    confidence = NULL,
+                                    mining_method = "apriori") {
+
+  if (is.null(support)) {
+    rlang::abort(
+      "Please specify `min_support` to be able to fit specification.",
+      call = call("fit")
+    )
+  }
+
+  if (is.null(confidence)) {
+    rlang::abort(
+      "Please specify `min_confidence` to be able to fit specification.",
+      call = call("fit")
+    )
+  }
+
+  if (mining_method == "apriori") {
+    res <- arules::apriori(data, parameter = list(support = support, confidence = confidence, target = "rules"))
+  } else if (mining_method == "eclat") {
     # Run Eclat first to get frequent itemsets
-    frequent_itemsets <- arules::eclat(data, parameter = list(support = min_support))
+    frequent_itemsets <- arules::eclat(data, parameter = list(support = support))
     # Generate association rules from frequent itemsets
-    res <- arules::ruleInduction(frequent_itemsets, confidence = min_confidence, method = "ptree")
+    res <- arules::ruleInduction(frequent_itemsets, confidence = confidence, method = "ptree")
   } else {
     stop("Invalid engine specified. Choose 'apriori' or 'eclat'.")
   }
 
-  attr(res, "items") <- data.frame(items = dimnames(data)[[2]])
+  attr(res, "items") <- colnames(data)
   return(res)
 }
