@@ -165,6 +165,28 @@ method is apriori.
 We fit the model to the data in the usual way:
 
 ```{r}
+fi_fit <- fi_spec %>%
+  fit(~ .,
+    data = groceries
+  )
+
+fi_fit %>%
+  summary()
+```
+
+We can also extract the standard `tidyclust` summary list:
+
+```{r}
+# fi_summary <- fi_fit %>%
+#   extract_fit_summary()
+# 
+# fi_summary %>%
+#   str()
+```
+
+```{r}
+#| include: false
+#| eval: false
 
 d <- as.data.frame(as(Groceries, "matrix"))
 
@@ -257,13 +279,6 @@ tibble::tibble(.cluster = factor(res)) %>%
   summarise(n())
 
 #####################################################################
-
-fi_fit %>%
-  extract_cluster_assignment()
-
-fi_fit$fit|> str()
-
-
 ```
 
 ## Prediction
