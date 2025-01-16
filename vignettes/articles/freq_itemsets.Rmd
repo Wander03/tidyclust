@@ -37,8 +37,8 @@ Load and clean a dataset:
 ```{r}
 data(Groceries)
 
-# convert to data frame and take subset
-groceries <- as.data.frame(as(Groceries[1:100,], "matrix"))
+# convert to data frame
+groceries <- as.data.frame(as(Groceries, "matrix"))
 ```
 
 ## A Brief Introduction to Frequent Itemset Mining
@@ -188,10 +188,11 @@ We can also extract the standard `tidyclust` summary list:
 #| include: false
 #| eval: false
 
-d <- as.data.frame(as(Groceries, "matrix"))
+d <- as.data.frame(as(Groceries, "matrix")) |>
+  mutate(across(everything(), ~.*1))
 
 fi_spec <- freq_itemsets(
-  min_support = 0.2,
+  min_support = 0.05,
   mining_method = "eclat"
 )
 
@@ -201,8 +202,6 @@ fi_fit <- fi_spec %>%
   )
 
 inspect(fi_fit$fit)
-
-fi_fit$spec$method$fit$args$
 
 # fi_fit %>%
 #   summary()
@@ -215,7 +214,7 @@ test <- arules::eclat(
 arules::inspect(test)
 
 items <- colnames(d)
-itemsets <- arules::inspect(test)
+itemsets <- arules::inspect(fi_fit$fit)
 itemset_list <- lapply(strsplit(gsub("[{}]", "", itemsets$items), ","), stringr::str_trim)
 
 support <- itemsets$support
@@ -274,9 +273,7 @@ cluster_map <- setNames(paste0(prefix, seq_along(unique_non_zero_clusters)), uni
 # Assign the corresponding cluster names to the non-zero clusters
 res[clusters != 0] <- cluster_map[as.character(non_zero_clusters)]
 
-tibble::tibble(.cluster = factor(res)) %>%
-  group_by(.cluster) %>%
-  summarise(n())
+tibble::tibble(.cluster = factor(res))
 
 #####################################################################
 ```

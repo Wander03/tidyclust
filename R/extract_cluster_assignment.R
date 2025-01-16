@@ -206,9 +206,46 @@ cluster_assignment_tibble_w_outliers <- function(clusters,
                                                  n_clusters,
                                                  ...,
                                                  prefix = "Cluster_") {
-  reorder_clusts <- order(union(unique(clusters), 0:(n_clusters-1)))
-  names <- paste0(prefix, 0:(n_clusters-1))
-  res <- names[reorder_clusts][clusters+1]
+  items <- colnames(d)
+  itemsets <- arules::inspect(fi_fit$fit)
+  itemset_list <- lapply(strsplit(gsub("[{}]", "", itemsets$items), ","), stringr::str_trim)
+
+  support <- itemsets$support
+  clusters <- numeric(length(items))
+
+  sapply(1:length(items), function(i) {
+    current_item <- items[i]
+
+    # Find relevant itemsets that contain the current itemset
+    relevant_itemsets <- which(sapply(itemset_list, function(x) current_item %in% x))
+
+
+    if (length(relevant_itemsets) == 0) {
+      return(0)  # No frequent itemsets, assign to own cluster
+    }
+
+    # Find all items in relevant itemsets
+    all_items <- unique(unlist(itemset_list[relevant_itemsets]))
+    all_items_num <- match(all_items, items)
+
+    # Highest support with largest itemset tiebreaker
+    best_itemset <- relevant_itemsets[which.max(support[relevant_itemsets])]
+
+    if (clusters[i] == 0 || support[best_itemset] > support[clusters[i]]) {
+      for (x in all_items_num) {
+        clusters[x] <<- best_itemset
+      }
+    }
+  })
+
+  n_clusters <- length(unique(clusters))
+  prefix = "Cluster_"
+
+  # Vector to store the resulting cluster names
+  res <- character(length(clusters))
+
+  # For items with cluster value 0, assign to "Cluster_0"
+  res[clusters == 0] <- "Cluster_0"
   zero_count <- 0
   res <- sapply(res, function(x) {
     if (x == "Cluster_0") {
@@ -218,5 +255,16 @@ cluster_assignment_tibble_w_outliers <- function(clusters,
       x
     }
   })
+
+  # For non-zero clusters, assign sequential cluster numbers starting from "Cluster_1"
+  non_zero_clusters <- clusters[clusters != 0]
+  unique_non_zero_clusters <- unique(non_zero_clusters)
+
+  # Map each unique non-zero cluster to a new cluster starting from Cluster_1
+  cluster_map <- setNames(paste0(prefix, seq_along(unique_non_zero_clusters)), unique_non_zero_clusters)
+
+  # Assign the corresponding cluster names to the non-zero clusters
+  res[clusters != 0] <- cluster_map[as.character(non_zero_clusters)]
+
   tibble::tibble(.cluster = factor(res))
 }

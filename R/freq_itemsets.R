@@ -143,7 +143,7 @@ translate_tidyclust.freq_itemsets <- function(x, engine = x$engine, ...) {
 #' This wrapper prepares the data and parameters to send to either `arules::apriori`
 #' or `arules::eclat` for frequent itemsets mining, depending on the chosen method.
 #'
-#' @param data A transaction data set.
+#' @param x A transaction data set.
 #' @param min_support Minimum support threshold.
 #' @param mining_method Algorithm to use for mining frequent itemsets. Either "apriori" or "eclat".
 #'
@@ -169,6 +169,6 @@ translate_tidyclust.freq_itemsets <- function(x, engine = x$engine, ...) {
     stop("Invalid method specified. Choose 'apriori' or 'eclat'.")
   }
 
-  attr(res, "items") <- colnames(x)
+  attr(res, "item_names") <- colnames(x)
   return(res)
 }
