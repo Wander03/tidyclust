@@ -38,7 +38,8 @@ Load and clean a dataset:
 data(Groceries)
 
 # convert to data frame
-groceries <- as.data.frame(as(Groceries, "matrix"))
+groceries <- as.data.frame(as(Groceries, "matrix")) %>%
+  dplyr::mutate(across(everything(), ~.*1))
 ```
 
 ## A Brief Introduction to Frequent Itemset Mining
@@ -150,7 +151,7 @@ choose a value of `min_support` and (optionally) a mining method:
 
 ```{r}
 fi_spec <- freq_itemsets(
-  min_support = 0.2,
+  min_support = 0.05,
   mining_method = "apriori"
 )
 
@@ -183,6 +184,22 @@ We can also extract the standard `tidyclust` summary list:
 # fi_summary %>%
 #   str()
 ```
+
+Note that, although the frequent itemset algorithm is not focused on cluster's
+like other unsupervised learning algorithms, we have created clusters based on
+the itemsets. For each item, we find all itemsets that include that item:
+
+- Itemsets with the highest support are selected as the "dominate" itemset for the item
+
+- If there is a tie in support, the largest itemset is selected
+
+- If no itemsets include the item, it is assigned a special "outlier" cluster (Cluster_0_1, Cluster_0_2, etc.)
+
+```{r}
+fi_fit %>% 
+  extract_cluster_assignment()
+```
+
 
 ```{r}
 #| include: false

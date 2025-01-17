@@ -159,55 +159,9 @@ extract_cluster_assignment.hclust <- function(object,
 
 #' @export
 extract_cluster_assignment.itemsets <- function(object, ...) {
-  items <- attr(object, "items")
+  items <- attr(object, "item_names")
   itemsets <- arules::inspect(object)
 
-  support <- itemsets$support
-  itemset_sizes <- sapply(strsplit(
-    gsub("[{}]", "", itemsets$items), ","),
-    length)
-
-  clusters <- sapply(1:length(items), function(i) {
-    current_itemset <- items[i]
-
-    # Find relevant itemsets that contain the current itemset
-    relevant_itemsets <- which(
-      sapply(strsplit(gsub("[{}]", "", itemsets$items), ","),
-             function(x) current_itemset %in% x)
-      )
-
-    # If item has no frequent itemsets, assign the item to its own cluster
-    if(length(relevant_itemsets) == 0) {
-      return(0)
-    }
-
-    # Apply Highest Support with Largest Itemset Tiebreaker
-    relevant_itemsets[which.max(cbind(support[relevant_itemsets],
-                                      -itemset_sizes[relevant_itemsets]))[1]]
-  })
-
-  cluster_assignment_tibble_w_outliers(clusters, length(unique(clusters)), ...)
-}
-
-# ------------------------------------------------------------------------------
-
-cluster_assignment_tibble <- function(clusters,
-                                      n_clusters,
-                                      ...,
-                                      prefix = "Cluster_") {
-  reorder_clusts <- order(union(unique(clusters), seq_len(n_clusters)))
-  names <- paste0(prefix, seq_len(n_clusters))
-  res <- names[reorder_clusts][clusters]
-
-  tibble::tibble(.cluster = factor(res))
-}
-
-cluster_assignment_tibble_w_outliers <- function(clusters,
-                                                 n_clusters,
-                                                 ...,
-                                                 prefix = "Cluster_") {
-  items <- colnames(d)
-  itemsets <- arules::inspect(fi_fit$fit)
   itemset_list <- lapply(strsplit(gsub("[{}]", "", itemsets$items), ","), stringr::str_trim)
 
   support <- itemsets$support
@@ -238,9 +192,26 @@ cluster_assignment_tibble_w_outliers <- function(clusters,
     }
   })
 
-  n_clusters <- length(unique(clusters))
-  prefix = "Cluster_"
+  item_assignment_tibble_w_outliers(clusters, length(unique(clusters)), ...)
+}
 
+# ------------------------------------------------------------------------------
+
+cluster_assignment_tibble <- function(clusters,
+                                      n_clusters,
+                                      ...,
+                                      prefix = "Cluster_") {
+  reorder_clusts <- order(union(unique(clusters), seq_len(n_clusters)))
+  names <- paste0(prefix, seq_len(n_clusters))
+  res <- names[reorder_clusts][clusters]
+
+  tibble::tibble(.cluster = factor(res))
+}
+
+item_assignment_tibble_w_outliers <- function(clusters,
+                                              n_clusters,
+                                              ...,
+                                              prefix = "Cluster_") {
   # Vector to store the resulting cluster names
   res <- character(length(clusters))
 
