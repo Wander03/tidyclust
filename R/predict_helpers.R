@@ -152,3 +152,47 @@ make_predictions <- function(x, prefix, n_clusters) {
 
   pred_clusts
 }
+
+# .freq_itemsets_predict_arules <- function(object, new_data, ..., prefix = "Cluster_") {
+#   new_data <- as.matrix(new_data)
+#
+#   training_data <- as.matrix(attr(object, "training_data"))
+#   clusters <- extract_cluster_assignment(
+#     object,
+#     ...,
+#     prefix = prefix,
+#     call = call("predict")
+#
+#     n_receipts <- nrow(transactions)
+#     n_clusters <- length(clusters)
+#     cluster_activity <- matrix(0, nrow = n_receipts, ncol = n_clusters)
+#     colnames(cluster_activity) <- names(clusters)
+#
+#     # Loop through each receipt
+#     for (receipt_idx in 1:n_receipts) {
+#       # Extract items bought in the receipt
+#       bought_items <- colnames(transactions)[which(transactions[receipt_idx, ] == 1)]
+#
+#       # Loop through each cluster
+#       for (cluster_idx in seq_along(clusters)) {
+#         cluster_items <- clusters[[cluster_idx]]
+#
+#         # Calculate Overlap Proportion
+#         overlap <- intersect(bought_items, cluster_items)
+#         overlap_proportion <- length(overlap) / length(cluster_items)
+#
+#         # Calculate Average Support
+#         avg_support <- mean(item_support[cluster_items], na.rm = TRUE)
+#
+#         # Combine Overlap and Support (weighted sum)
+#         cluster_activity[receipt_idx, cluster_idx] <-
+#           0.5 * overlap_proportion + 0.5 * avg_support
+#       }
+#     }
+#
+#     # Convert to data frame for output
+#     cluster_activity_df <- as.data.frame(cluster_activity)
+#     rownames(cluster_activity_df) <- rownames(transactions)
+#     return(cluster_activity_df)
+#   )
+# }
