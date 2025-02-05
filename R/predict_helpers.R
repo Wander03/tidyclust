@@ -153,46 +153,61 @@ make_predictions <- function(x, prefix, n_clusters) {
   pred_clusts
 }
 
-# .freq_itemsets_predict_arules <- function(object, new_data, ..., prefix = "Cluster_") {
-#   new_data <- as.matrix(new_data)
-#
-#   training_data <- as.matrix(attr(object, "training_data"))
-#   clusters <- extract_cluster_assignment(
-#     object,
-#     ...,
-#     prefix = prefix,
-#     call = call("predict")
-#
-#     n_receipts <- nrow(transactions)
-#     n_clusters <- length(clusters)
-#     cluster_activity <- matrix(0, nrow = n_receipts, ncol = n_clusters)
-#     colnames(cluster_activity) <- names(clusters)
-#
-#     # Loop through each receipt
-#     for (receipt_idx in 1:n_receipts) {
-#       # Extract items bought in the receipt
-#       bought_items <- colnames(transactions)[which(transactions[receipt_idx, ] == 1)]
-#
-#       # Loop through each cluster
-#       for (cluster_idx in seq_along(clusters)) {
-#         cluster_items <- clusters[[cluster_idx]]
-#
-#         # Calculate Overlap Proportion
-#         overlap <- intersect(bought_items, cluster_items)
-#         overlap_proportion <- length(overlap) / length(cluster_items)
-#
-#         # Calculate Average Support
-#         avg_support <- mean(item_support[cluster_items], na.rm = TRUE)
-#
-#         # Combine Overlap and Support (weighted sum)
-#         cluster_activity[receipt_idx, cluster_idx] <-
-#           0.5 * overlap_proportion + 0.5 * avg_support
-#       }
-#     }
-#
-#     # Convert to data frame for output
-#     cluster_activity_df <- as.data.frame(cluster_activity)
-#     rownames(cluster_activity_df) <- rownames(transactions)
-#     return(cluster_activity_df)
-#   )
-# }
+.freq_itemsets_predict_arules <- function(object, new_data, ..., prefix = "Cluster_") {
+  new_data <- as.data.frame(new_data)
+
+  # Extract frequent itemsets and their supports
+  items <- attr(object, "item_names")
+  itemsets <- arules::inspect(object)
+  supports <- itemsets$supports
+
+  for (i in seq_len(nrow(new_data))) {
+    observed_items <- colnames(new_data)[which(new_data[i, ] == 1)]
+    missing_items <- colnames(new_data)[which(is.na(new_data[i, ]))]
+
+    for (item in missing_items) {
+      # Find relevant itemsets and supports
+      relevant_indices <- which(sapply(frequent_itemsets, function(x) item %in% x && any(observed_items %in% x)))
+      relevant_itemsets <- frequent_itemsets[relevant_indices]
+      relevant_supports <- supports[relevant_indices]
+
+      # Compute confidence for each relevant itemset
+      probabilities <- sapply(seq_along(relevant_itemsets), function(idx) {
+        itemset <- relevant_itemsets[[idx]]
+        itemset_without_item <- setdiff(itemset, item)
+
+        # Find support values using indices
+        support_full <- relevant_supports[idx]
+        support_without <- supports[which(sapply(frequent_itemsets, function(x) identical(x, itemset_without_item)))]
+
+        if (length(support_without) > 0) {
+          return(support_full / support_without[1])
+        } else {
+          return(NA)
+        }
+      }, USE.NAMES = FALSE)
+
+      # Aggregate probabilities (using mean)
+      prob_estimate <- ifelse(length(na.omit(probabilities)) > 0, mean(na.omit(probabilities)), NA)
+
+      # Replace NA with probability estimate
+      new_data[i, item] <- prob_estimate
+
+      print(i)
+      print(item)
+      print(prob_estimate)
+      print(itemset)
+      print(itemset_without_item)
+      print(support_without)
+      print(new_data)
+      print(probabilities) # WH^Y IS THIS NA?
+      print(support_full)
+      print(support_without[1])
+      print(length(support_without))
+      print(missing_items)
+      print(new_data[i, item])
+    }
+  }
+
+  return(new_data)
+}
