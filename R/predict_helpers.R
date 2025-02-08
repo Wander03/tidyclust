@@ -158,8 +158,9 @@ make_predictions <- function(x, prefix, n_clusters) {
 
   # Extract frequent itemsets and their supports
   items <- attr(object, "item_names")
-  frequent_itemsets <- arules::inspect(object)
-  supports <- frequent_itemsets$supports
+  itemsets <- arules::inspect(object)
+  frequent_itemsets <- lapply(strsplit(gsub("[{}]", "", itemsets$items), ","), stringr::str_trim)
+  supports <- itemsets$support
 
   for (i in seq_len(nrow(new_data))) {
     observed_items <- colnames(new_data)[which(new_data[i, ] == 1)]
@@ -180,9 +181,6 @@ make_predictions <- function(x, prefix, n_clusters) {
         support_full <- relevant_supports[idx]
         support_without <- supports[which(sapply(frequent_itemsets, function(x) identical(x, itemset_without_item)))]
 
-        print(support_full)
-        print(support_without[1])
-
         if (length(support_without) > 0) {
           return(support_full / support_without[1])
         } else {
@@ -195,15 +193,6 @@ make_predictions <- function(x, prefix, n_clusters) {
 
       # Replace NA with probability estimate
       new_data[i, item] <- prob_estimate
-
-      print(i)
-      print(item)
-      print(prob_estimate)
-      print(frequent_itemsets)
-      print(new_data)
-      print(probabilities) # WH^Y IS THIS NA?
-      print(missing_items)
-      print(new_data[i, item])
     }
   }
 
