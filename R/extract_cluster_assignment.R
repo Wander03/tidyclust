@@ -197,19 +197,7 @@ extract_cluster_assignment.itemsets <- function(object, ...) {
     cluster_supports[[best_itemset]] <<- mean(support[relevant_itemsets])
   })
 
-  item_assignment_tibble_w_outliers(clusters, cluster_supports, ...)
-
-  # # Map cluster IDs to their average support
-  # cluster_info$average_support <- sapply(cluster_info$.cluster, function(cluster_name) {
-  #   if (grepl("Cluster_0", cluster_name)) {
-  #     return(NA)  # No support for "Cluster_0"
-  #   }
-  #   cluster_id <- as.numeric(gsub("Cluster_", "", cluster_name))
-  #
-  #   cluster_supports[[cluster_id]]
-  # })
-  #
-  # cluster_info
+  item_assignment_tibble_w_outliers(clusters, ...)
 }
 
 # ------------------------------------------------------------------------------
@@ -226,7 +214,6 @@ cluster_assignment_tibble <- function(clusters,
 }
 
 item_assignment_tibble_w_outliers <- function(clusters,
-                                              supports,
                                               ...,
                                               prefix = "Cluster_") {
   # Vector to store the resulting cluster names
@@ -254,20 +241,5 @@ item_assignment_tibble_w_outliers <- function(clusters,
   # Assign the corresponding cluster names to the non-zero clusters
   res[clusters != 0] <- cluster_map[as.character(non_zero_clusters)]
 
-  # Map average supports using the original cluster IDs
-  support_mapping  <- sapply(clusters, function(cluster_id) {
-    if (cluster_id == 0) {
-      NA  # Assign NA for items in Cluster_0
-    } else {
-      supports[[cluster_id]]
-    }
-  })
-
-  # Add average support as a column to the tibble
-  tibble::tibble(
-    .cluster = factor(res),
-    average_support = support_mapping
-  )
-
-  # tibble::tibble(.cluster = factor(res))
+  tibble::tibble(.cluster = factor(res))
 }
