@@ -189,9 +189,9 @@ Note that, although the frequent itemset algorithm is not focused on cluster's
 like other unsupervised learning algorithms, we have created clusters based on
 the itemsets. For each item, we find all itemsets that include that item:
 
-- Itemsets with the highest support are selected as the "dominate" itemset for the item
+- Itemsets with the largest size are selected as the "dominate" itemset for the item
 
-- If there is a tie in support, the largest itemset is selected
+- If there is a tie in size, the itemset with the highest support is selected
 
 - If no itemsets include the item, it is assigned a special "outlier" cluster (Cluster_0_1, Cluster_0_2, etc.)
 
@@ -202,14 +202,31 @@ fi_fit %>%
 
 ## Prediction
 
+Since frequent itemset mining identifies patterns in co-occurring items rather 
+than learning a predictive function, the notion of "prediction" is not as 
+straightforward as in supervised learning. However, given a set of frequent 
+itemsets from historical data, it is possible to estimate the likelihood that a 
+missing item in new data is present based on observed co-occurring items.
+
+The predict() function utilizes frequent itemsets and their support values to 
+estimate probabilities for missing items in new transactions. For each row in 
+new_data, the function identifies observed items and missing items. It then 
+searches for frequent itemsets that contain both the missing item and at least 
+one observed item. Using the support values of these itemsets, it estimates the 
+probability that the missing item is present based on the confidence of 
+association between observed and missing items.
+
+The function fills in missing values with these probability estimates, 
+effectively "predicting" the likelihood of item presence based on historical 
+co-occurrence patterns.
+
 ```{r}
-
-test <- groceries[1,] %>%
+new_data <- groceries[1,] %>%
   dplyr::mutate(`whole milk` = as.numeric(NA),
-                yogurt = as.numeric(1))
+                `other vegetables` = as.numeric(1))
 
-fi_fit %>%
-  predict(test)
+results <- fi_fit %>%
+  predict(new_data)
+
+results[[1]]
 ```
-
-***[WIP]***

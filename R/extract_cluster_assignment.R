@@ -184,15 +184,31 @@ extract_cluster_assignment.itemsets <- function(object, ...) {
     all_items <- unique(unlist(itemset_list[relevant_itemsets]))
     all_items_num <- match(all_items, items)
 
-    # Highest support with largest itemset tiebreaker
-    best_itemset <- relevant_itemsets[which.max(support[relevant_itemsets])]
+    # Find the size of each relevant itemset
+    itemset_sizes <- sapply(itemset_list[relevant_itemsets], length)
 
-    if (clusters[i] == 0 || support[best_itemset] > support[clusters[i]]) {
+    # Largest itemset with highest support tiebreaker
+    best_itemset <- relevant_itemsets[which.max(itemset_sizes * max(support) + support[relevant_itemsets])]
+
+    # Get the size and support of the best itemset
+    best_itemset_size <- length(itemset_list[[best_itemset]])
+    best_itemset_support <- support[best_itemset]
+
+    # Get the size and support of the current cluster (if any)
+    current_cluster_size <- if (clusters[i] != 0) length(itemset_list[[clusters[i]]]) else 0
+    current_cluster_support <- if (clusters[i] != 0) support[clusters[i]] else 0
+
+    # Create Cluster from best_itemset if:
+    # 1. The item has no cluster, or
+    # 2. The best_itemset is larger than the current cluster, or
+    # 3. The best_itemset is the same size but has higher support
+    if (clusters[i] == 0 ||
+        best_itemset_size > current_cluster_size ||
+        (best_itemset_size == current_cluster_size && best_itemset_support > current_cluster_support)) {
       for (x in all_items_num) {
         clusters[x] <<- best_itemset
       }
     }
-
     # Update cluster average support
     cluster_supports[[best_itemset]] <<- mean(support[relevant_itemsets])
   })
