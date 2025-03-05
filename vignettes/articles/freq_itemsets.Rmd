@@ -221,7 +221,7 @@ effectively "predicting" the likelihood of item presence based on historical
 co-occurrence patterns.
 
 ```{r}
-new_data <- groceries[1,] %>%
+new_data <- groceries[1:5,] %>%
   dplyr::mutate(`whole milk` = as.numeric(NA),
                 `other vegetables` = as.numeric(1))
 
@@ -229,4 +229,9 @@ results <- fi_fit %>%
   predict(new_data)
 
 results[[1]]
+
+predict_cluster(object = fi_fit, new_data= new_data) |> class()
+
+tidyclust:::format_cluster(list(a = c(bob = 2), b = c(joe = 5
+                                                      )))
 ```
