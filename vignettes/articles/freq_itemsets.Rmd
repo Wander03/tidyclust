@@ -228,10 +228,31 @@ new_data <- groceries[1:5,] %>%
 results <- fi_fit %>%
   predict(new_data)
 
-results[[1]]
+results[[1,1]]
 
 predict_cluster(object = fi_fit, new_data= new_data) |> class()
 
 tidyclust:::format_cluster(list(a = c(bob = 2), b = c(joe = 5
                                                       )))
+
+
+
+
+
+
+
+result_list <- lapply(1:nrow(new_data), function(i) {
+    row_data <- new_data[i, ]
+    # print(colnames(row_data))
+    data.frame(
+      item = colnames(new_data),
+      prob = as.vector(as.matrix(row_data)),
+      pred = is.na(as.vector(as.matrix(row_data)))
+    )
+  })
+
+result_list <- lapply(result_list, function(df) {
+    df$prob <- ifelse(df$pred & df$prob >= .5, 1, df$prob)
+    df
+  })
 ```

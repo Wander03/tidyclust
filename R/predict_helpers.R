@@ -153,7 +153,7 @@ make_predictions <- function(x, prefix, n_clusters) {
   pred_clusts
 }
 
-.freq_itemsets_predict_arules <- function(object, new_data, ..., prefix = "Cluster_") {
+.freq_itemsets_predict_arules <- function(object, new_data, cutoff = 0.5, ..., prefix = "Cluster_") {
   new_data <- as.data.frame(new_data)
 
   # Extract frequent itemsets and their supports
@@ -161,6 +161,16 @@ make_predictions <- function(x, prefix, n_clusters) {
   itemsets <- arules::inspect(object)
   frequent_itemsets <- lapply(strsplit(gsub("[{}]", "", itemsets$items), ","), stringr::str_trim)
   supports <- itemsets$support
+
+  # Transform the output dataframe format (make wide)
+  result_list <- lapply(1:nrow(new_data), function(i) {
+    row_data <- new_data[i, ]
+    data.frame(
+      item = items,
+      prob = as.vector(as.matrix(row_data)),
+      pred = is.na(as.vector(as.matrix(row_data)))
+    )
+  })
 
   for (i in seq_len(nrow(new_data))) {
     observed_items <- colnames(new_data)[which(new_data[i, ] == 1)]
@@ -196,5 +206,12 @@ make_predictions <- function(x, prefix, n_clusters) {
     }
   }
 
-  return(new_data)
+  # Apply cutoff to each dataframe in result_list
+  result_list <- lapply(result_list, function(df) {
+    row_data <- new_data[i, ]
+    df$prob <- ifelse(df$pred & as.vector(as.matrix(row_data)) >= cutoff, 1, 0)
+    df
+  })
+
+  return(result_list)
 }
