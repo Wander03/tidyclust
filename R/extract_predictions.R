@@ -7,7 +7,6 @@ extract_predictions <- function(pred_output) {
     purrr::map(~ {
       print(.x)
       .x %>%
-        dplyr::rowwise() %>%
         dplyr::mutate(value = ifelse(!is.na(.obs_item), .obs_item, .pred_item)) %>%
         dplyr::select(item, value) %>%
         tidyr::pivot_wider(names_from = item, values_from = value)
@@ -15,8 +14,4 @@ extract_predictions <- function(pred_output) {
     purrr::list_rbind()  # Combine the list of data frames into a single data frame
 
 }
-
-
-
-extract_predictions(results)
 

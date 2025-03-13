@@ -3,11 +3,11 @@
 \name{extract_predictions}
 \alias{extract_predictions}
 \title{Returns recommender predictions with predicted values imputed into dataset
-Notes: currently imputes raw probabilities}
+Notes: currently imputes thresholded probabilities}
 \usage{
 extract_predictions(pred_output)
 }
 \description{
 Returns recommender predictions with predicted values imputed into dataset
-Notes: currently imputes raw probabilities
+Notes: currently imputes thresholded probabilities
 }
