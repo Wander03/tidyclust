@@ -167,8 +167,8 @@ make_predictions <- function(x, prefix, n_clusters) {
     row_data <- new_data[i, ]
     data.frame(
       item = items,
-      .prob = as.vector(as.matrix(row_data)),
-      pred = is.na(as.vector(as.matrix(row_data)))
+      .obs_item = as.vector(as.matrix(row_data)),
+      .pred_item = rep(NA, length(row_data))
     )
   })
 
@@ -209,7 +209,7 @@ make_predictions <- function(x, prefix, n_clusters) {
   # Apply cutoff to each dataframe in result_list
   result_list <- lapply(result_list, function(df) {
     row_data <- new_data[i, ]
-    df$.prob <- ifelse(df$pred & as.vector(as.matrix(row_data)) >= 0.5, 1, 0)
+    df$.pred_item <- ifelse(is.na(df$.obs_item), ifelse(as.vector(as.matrix(row_data)) >= 0.5, 1, 0), NA)
     df
   })
 

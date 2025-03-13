@@ -229,4 +229,11 @@ results <- fi_fit %>%
   predict(new_data)
 
 results[[1,1]]
+
+
+
+
+
+results %>%
+  extract_predictions
 ```
