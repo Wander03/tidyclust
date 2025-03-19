@@ -220,6 +220,9 @@ The function fills in missing values with these probability estimates,
 effectively "predicting" the likelihood of item presence based on historical 
 co-occurrence patterns.
 
+We display the predicted values in the column `.pred_item`, and the observed 
+values in the column `.obs_item`.
+
 ```{r}
 new_data <- groceries[1:5,] %>%
   dplyr::mutate(`whole milk` = as.numeric(NA),
@@ -229,11 +232,13 @@ results <- fi_fit %>%
   predict(new_data)
 
 results[[1,1]]
+```
 
+Additionally, we can extract the nested predicted output to be formatted in a 
+single data frame, filling in the `NA` values with their predicted value using
+`extract_predictions`.
 
-
-
-
+```{r}
 results %>%
   extract_predictions
 ```

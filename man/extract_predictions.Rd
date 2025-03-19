@@ -2,12 +2,16 @@
 % Please edit documentation in R/extract_predictions.R
 \name{extract_predictions}
 \alias{extract_predictions}
-\title{Returns recommender predictions with predicted values imputed into dataset
-Notes: currently imputes thresholded probabilities}
+\title{Extract Predictions from Observation Data Frames}
 \usage{
 extract_predictions(pred_output)
 }
+\arguments{
+\item{pred_output}{A data frame with one column, where each cell contains a data frame.}
+}
+\value{
+A data frame with items as columns and non-NA values as rows.
+}
 \description{
-Returns recommender predictions with predicted values imputed into dataset
-Notes: currently imputes thresholded probabilities
+This function processes a data frame containing observation data frames and extracts non-NA values.
 }
