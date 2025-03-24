@@ -15,3 +15,7 @@ A data frame with items as columns and non-NA values as rows.
 \description{
 This function processes a data frame containing observation data frames and extracts non-NA values.
 }
+\details{
+Returns recommender predictions with predicted values imputed into dataset
+Notes: currently imputes thresholded probabilities
+}

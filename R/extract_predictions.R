@@ -2,11 +2,12 @@
 #'
 #' This function processes a data frame containing observation data frames and extracts non-NA values.
 #'
+#' Returns recommender predictions with predicted values imputed into dataset
+#' Notes: currently imputes thresholded probabilities
+#'
 #' @param pred_output A data frame with one column, where each cell contains a data frame.
 #' @return A data frame with items as columns and non-NA values as rows.
 #' @export
-#' Returns recommender predictions with predicted values imputed into dataset
-#' Notes: currently imputes thresholded probabilities
 
 extract_predictions <- function(pred_output) {
   # Extract the list of data frames from the single column
