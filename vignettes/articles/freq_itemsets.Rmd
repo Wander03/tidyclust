@@ -242,3 +242,36 @@ single data frame, filling in the `NA` values with their predicted value using
 results %>%
   extract_predictions
 ```
+
+
+
+
+```{r}
+mvb_cvs <- rsample::vfold_cv(groceries, v = 10)
+
+rf_grid <- dials::grid_regular(min_support(), 
+                        levels = 10)
+
+rf_mod_tune <- freq_itemsets(min_support = tune(), 
+                           mining_method = "apriori") %>%
+  set_engine("arules") %>%
+  set_mode("partition")
+
+rf_recipe <- recipes::recipe(~ ., data = groceries)
+
+rf_wflow_tune <- workflow() %>%
+  add_model(rf_mod_tune) %>% 
+  add_recipe(rf_recipe)
+
+rf_grid_search <-
+  tune::tune_grid(
+    rf_wflow_tune,
+    resamples = mvb_cvs,
+    grid = rf_grid,
+    metrics = yardstick::metric_set(accuracy, roc_auc, precision, recall, gain_capture)
+  )
+```
+
+
+
+

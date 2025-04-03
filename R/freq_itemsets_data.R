@@ -27,7 +27,7 @@ make_freq_itemsets <- function() {
     mode = "partition",
     value = list(
       interface = "matrix",
-      protect = c("data"),
+      protect = c("x, min_support, mining_method"),
       func = c(pkg = "tidyclust", fun = ".freq_itemsets_fit_arules"),
       defaults = list()
     )
