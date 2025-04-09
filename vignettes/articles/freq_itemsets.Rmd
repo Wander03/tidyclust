@@ -150,10 +150,10 @@ To specify a frequent itemsets mining model in `tidyclust`, simply
 choose a value of `min_support` and (optionally) a mining method:
 
 ```{r}
-fi_spec <- freq_itemsets(
-  min_support = 0.05,
-  mining_method = "apriori"
-)
+fi_spec <- freq_itemsets(min_support = 0.05, 
+                           mining_method = "apriori") %>%
+  set_engine("arules") %>%
+  set_mode("partition")
 
 fi_spec
 ```
@@ -267,8 +267,7 @@ rf_grid_search <-
   tune::tune_grid(
     rf_wflow_tune,
     resamples = mvb_cvs,
-    grid = rf_grid,
-    metrics = yardstick::metric_set(accuracy, roc_auc, precision, recall, gain_capture)
+    grid = rf_grid
   )
 ```
 
