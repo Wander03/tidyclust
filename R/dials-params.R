@@ -46,7 +46,7 @@ values_linkage_method <- c(
 
 #' Min Support
 #'
-#' Used in most `tidyclust::freq_itemsets()` models.
+#' Used in all `tidyclust::freq_itemsets()` models.
 #'
 #' @inheritParams dials::Laplace
 #' @examples
