@@ -229,7 +229,7 @@ new_data <- groceries[1:5,] %>%
                 `other vegetables` = as.numeric(1))
 
 results <- fi_fit %>%
-  predict(new_data)
+  predict(new_data, type="raw")
 
 results[[1,1]]
 ```

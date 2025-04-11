@@ -153,7 +153,7 @@ make_predictions <- function(x, prefix, n_clusters) {
   pred_clusts
 }
 
-.freq_itemsets_predict_arules <- function(object, new_data, ..., prefix = "Cluster_") {
+itemset_predictions <- function(object, new_data, ..., prefix = "Cluster_") {
   new_data <- as.data.frame(new_data)
 
   # Extract frequent itemsets and their supports
@@ -206,12 +206,26 @@ make_predictions <- function(x, prefix, n_clusters) {
     }
   }
 
-  # Apply cutoff to each dataframe in result_list
   result_list <- lapply(result_list, function(df) {
     row_data <- new_data[i, ]
-    df$.pred_item <- ifelse(is.na(df$.obs_item), ifelse(as.vector(as.matrix(row_data)) >= 0.5, 1, 0), NA)
+    df$.pred_item <- ifelse(is.na(df$.obs_item), as.vector(as.matrix(row_data)), NA)
     df
   })
 
   return(result_list)
+}
+
+.freq_itemsets_predict_arules <- function(object, new_data, ..., prefix = "Cluster_") {
+  raw_pred <- itemset_predictions(object, new_data, ..., prefix = "Cluster_")
+
+  # Apply cutoff to each dataframe in result_list
+  lapply(raw_pred, function(df) {
+    row_data <- new_data[i, ]
+    df$.pred_item <- ifelse(is.na(df$.obs_item), ifelse(as.vector(as.matrix(row_data)) >= 0.5, 1, 0), NA)
+    df
+  })
+}
+
+.freq_itemsets_predict_raw_arules <- function(object, new_data, ..., prefix = "Cluster_") {
+  itemset_predictions(object, new_data, ..., prefix = "Cluster_")
 }

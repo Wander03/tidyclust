@@ -79,4 +79,22 @@ make_freq_itemsets <- function() {
         )
     )
   )
+
+  # May want to change to pre and post instead of direct function
+  modelenv::set_pred(
+    model = "freq_itemsets",
+    eng = "arules",
+    mode = "partition",
+    type = "raw",
+    value = list(
+      pre = NULL,
+      post = NULL,
+      func = c(fun = ".freq_itemsets_predict_raw_arules"),
+      args =
+        list(
+          object = rlang::expr(object$fit),
+          new_data = rlang::expr(new_data)
+        )
+    )
+  )
 }
