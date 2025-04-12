@@ -226,10 +226,12 @@ values in the column `.obs_item`.
 ```{r}
 new_data <- groceries[1:5,] %>%
   dplyr::mutate(`whole milk` = as.numeric(NA),
+                frankfurter = as.numeric(NA),
+                yogurt = as.numeric(NA),
                 `other vegetables` = as.numeric(1))
 
 results <- fi_fit %>%
-  predict(new_data, type="raw")
+  predict(new_data)
 
 results[[1,1]]
 ```
@@ -247,28 +249,24 @@ results %>%
 
 
 ```{r}
-mvb_cvs <- rsample::vfold_cv(groceries, v = 10)
 
-rf_grid <- dials::grid_regular(min_support(), 
+
+dials::grid_regular(min_support(), 
                         levels = 10)
 
-rf_mod_tune <- freq_itemsets(min_support = tune(), 
-                           mining_method = "apriori") %>%
-  set_engine("arules") %>%
-  set_mode("partition")
+new_data <- groceries[1:5,] %>%
+  dplyr::mutate(`whole milk` = as.numeric(NA),
+                frankfurter = as.numeric(NA),
+                yogurt = as.numeric(NA),
+                `other vegetables` = as.numeric(1))
 
-rf_recipe <- recipes::recipe(~ ., data = groceries)
+raw <- fi_fit %>%
+  predict(new_data, type = "raw")
 
-rf_wflow_tune <- workflow() %>%
-  add_model(rf_mod_tune) %>% 
-  add_recipe(rf_recipe)
+threshold <- fi_fit %>%
+  predict(new_data)
 
-rf_grid_search <-
-  tune::tune_grid(
-    rf_wflow_tune,
-    resamples = mvb_cvs,
-    grid = rf_grid
-  )
+
 ```
 
 

@@ -153,7 +153,7 @@ make_predictions <- function(x, prefix, n_clusters) {
   pred_clusts
 }
 
-itemset_predictions <- function(object, new_data, ..., prefix = "Cluster_") {
+.freq_itemsets_predict_raw_arules <- function(object, new_data, ..., prefix = "Cluster_") {
   new_data <- as.data.frame(new_data)
 
   # Extract frequent itemsets and their supports
@@ -162,70 +162,74 @@ itemset_predictions <- function(object, new_data, ..., prefix = "Cluster_") {
   frequent_itemsets <- lapply(strsplit(gsub("[{}]", "", itemsets$items), ","), stringr::str_trim)
   supports <- itemsets$support
 
-  # Transform the output dataframe format (make wide)
-  result_list <- lapply(1:nrow(new_data), function(i) {
-    row_data <- new_data[i, ]
-    data.frame(
-      item = items,
-      .obs_item = as.vector(as.matrix(row_data)),
-      .pred_item = rep(NA, length(row_data))
-    )
+  # Calculate global support for each item (fallback)
+  global_supports <- sapply(items, function(item) {
+    containing <- sapply(frequent_itemsets, function(x) item %in% x)
+    if (any(containing)) {
+      sum(supports[containing]) / sum(containing)
+    } else {
+      0
+    }
   })
 
-  for (i in seq_len(nrow(new_data))) {
-    observed_items <- colnames(new_data)[which(new_data[i, ] == 1)]
-    missing_items <- colnames(new_data)[which(is.na(new_data[i, ]))]
-
-    for (item in missing_items) {
-      # Find relevant itemsets and supports
-      relevant_indices <- which(sapply(frequent_itemsets, function(x) item %in% x && any(observed_items %in% x)))
-      relevant_itemsets <- frequent_itemsets[relevant_indices]
-      relevant_supports <- supports[relevant_indices]
-
-      # Compute confidence for each relevant itemset
-      probabilities <- sapply(seq_along(relevant_itemsets), function(idx) {
-        itemset <- relevant_itemsets[[idx]]
-        itemset_without_item <- setdiff(itemset, item)
-
-        # Find support values using indices
-        support_full <- relevant_supports[idx]
-        support_without <- supports[which(sapply(frequent_itemsets, function(x) identical(x, itemset_without_item)))]
-
-        if (length(support_without) > 0) {
-          return(support_full / support_without[1])
-        } else {
-          return(NA)
-        }
-      }, USE.NAMES = FALSE)
-
-      # Aggregate probabilities (using mean)
-      prob_estimate <- ifelse(length(na.omit(probabilities)) > 0, mean(na.omit(probabilities)), NA)
-
-      # Replace NA with probability estimate
-      new_data[i, item] <- prob_estimate
-    }
-  }
-
-  result_list <- lapply(result_list, function(df) {
+  # Process each row of new_data
+  result_list <- lapply(1:nrow(new_data), function(i) {
     row_data <- new_data[i, ]
-    df$.pred_item <- ifelse(is.na(df$.obs_item), as.vector(as.matrix(row_data)), NA)
-    df
+    observed <- names(row_data)[row_data == 1]
+    missing <- names(row_data)[is.na(row_data)]
+
+    # Initialize prediction vector
+    pred_values <- rep(NA, length(items))
+    names(pred_values) <- items
+
+    # Calculate probabilities for missing items
+    for (item in missing) {
+      # Find itemsets containing both the current item and at least one observed item
+      relevant <- sapply(frequent_itemsets, function(x) {
+        item %in% x && any(observed %in% x)
+      })
+
+      if (!any(relevant)) {
+        pred_values[item] <- global_supports[item]
+        next
+      }
+
+      # Calculate confidences
+      confidences <- sapply(which(relevant), function(idx) {
+        itemset <- frequent_itemsets[[idx]]
+        itemset_without <- setdiff(itemset, item)
+
+        # Find support of itemset without the current item
+        if (length(itemset_without) == 0) return(NA)
+
+        matches <- sapply(frequent_itemsets, function(x) identical(x, itemset_without))
+        if (!any(matches)) return(NA)
+
+        supports[idx] / supports[matches][1]
+      })
+
+      pred_values[item] <- mean(confidences, na.rm = TRUE)
+      if (is.nan(pred_values[item])) pred_values[item] <- global_supports[item]
+    }
+
+    # Create result data frame
+    data.frame(
+      item = items,
+      .obs_item = unlist(row_data),
+      .pred_item = pred_values
+    )
   })
 
   return(result_list)
 }
 
 .freq_itemsets_predict_arules <- function(object, new_data, ..., prefix = "Cluster_") {
-  raw_pred <- itemset_predictions(object, new_data, ..., prefix = "Cluster_")
-
-  # Apply cutoff to each dataframe in result_list
-  lapply(raw_pred, function(df) {
-    row_data <- new_data[i, ]
-    df$.pred_item <- ifelse(is.na(df$.obs_item), ifelse(as.vector(as.matrix(row_data)) >= 0.5, 1, 0), NA)
+  raw_predictions <- .freq_itemsets_predict_raw_arules(object, new_data, ..., prefix = "Cluster_")
+  # Apply threshold to raw predictions
+  lapply(raw_predictions, function(df) {
+    df$.pred_item <- ifelse(is.na(df$.obs_item),
+                            ifelse(df$.pred_item >= 0.5, 1, 0),
+                            NA)
     df
   })
-}
-
-.freq_itemsets_predict_raw_arules <- function(object, new_data, ..., prefix = "Cluster_") {
-  itemset_predictions(object, new_data, ..., prefix = "Cluster_")
 }
