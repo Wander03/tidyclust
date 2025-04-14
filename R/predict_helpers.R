@@ -153,7 +153,7 @@ make_predictions <- function(x, prefix, n_clusters) {
   pred_clusts
 }
 
-.freq_itemsets_predict_raw_arules <- function(object, new_data, ..., prefix = "Cluster_") {
+itemsets_predict_helper <- function(object, new_data, ..., prefix = "Cluster_") {
   new_data <- as.data.frame(new_data)
 
   # Extract frequent itemsets and their supports
@@ -219,14 +219,17 @@ make_predictions <- function(x, prefix, n_clusters) {
       .pred_item = pred_values
     )
   })
+}
 
-  return(result_list)
+.freq_itemsets_predict_raw_arules <- function(object, new_data, ..., prefix = "Cluster_") {
+  res <- itemsets_predict_helper(object, new_data, ..., prefix = "Cluster_")
+  return(tibble::tibble(.pred_items = unname(res)))
 }
 
 .freq_itemsets_predict_arules <- function(object, new_data, ..., prefix = "Cluster_") {
-  raw_predictions <- .freq_itemsets_predict_raw_arules(object, new_data, ..., prefix = "Cluster_")
+  res <- itemsets_predict_helper(object, new_data, ..., prefix = "Cluster_")
   # Apply threshold to raw predictions
-  lapply(raw_predictions, function(df) {
+  lapply(res, function(df) {
     df$.pred_item <- ifelse(is.na(df$.obs_item),
                             ifelse(df$.pred_item >= 0.5, 1, 0),
                             NA)
