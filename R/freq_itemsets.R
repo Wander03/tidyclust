@@ -11,12 +11,12 @@
 #' - \link[=details_freq_itemsets_arules]{arules}
 #'
 #' @param mode A single character string for the type of model. The only
-#'   possible value for this model is "association".
+#'   possible value for this model is "partition".
 #' @param engine A single character string specifying the computational engine
 #'   to use for fitting. The default for this model is `"arules"`.
 #' @param mining_method A single character string specifying the algorithm to use for
 #'   fitting. Possible algorithms are `"apriori"` and `"eclat"`. The default for
-#'   this model is `"apriori"`.
+#'   this model is `"eclat"`.
 #' @param min_support Positive double, minimum support for an itemset (between 0 and 1).
 #'
 #' @details
@@ -35,7 +35,7 @@
 #' @export
 freq_itemsets <-
   function(mode = "partition", # will add other modes
-           engine = "arules",
+           engine = "eclat",
            min_support = NULL,
            mining_method = "apriori") {
     args <- list(
