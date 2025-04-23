@@ -151,7 +151,7 @@ choose a value of `min_support` and (optionally) a mining method:
 
 ```{r}
 fi_spec <- freq_itemsets(min_support = 0.05, 
-                           mining_method = "apriori") %>%
+                           mining_method = "eclat") %>%
   set_engine("arules") %>%
   set_mode("partition")
 
@@ -159,7 +159,7 @@ fi_spec
 ```
 
 Currently, the only supported engine is `arules`. The default mining
-method is apriori.
+method is eclat.
 
 ## **Fitting `freq_itemsets` models**
 
