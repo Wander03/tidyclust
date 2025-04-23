@@ -17,7 +17,7 @@ the default is used which matches the units used in \code{range}. If no
 transformation, \code{NULL}.}
 }
 \description{
-Used in most \code{tidyclust::freq_itemsets()} models.
+Used in all \code{tidyclust::freq_itemsets()} models.
 }
 \examples{
 min_support()

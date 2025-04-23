@@ -35,9 +35,9 @@
 #' @export
 freq_itemsets <-
   function(mode = "partition", # will add other modes
-           engine = "eclat",
+           engine = "arules",
            min_support = NULL,
-           mining_method = "apriori") {
+           mining_method = "eclat") {
     args <- list(
       min_support = enquo(min_support),
       mining_method = enquo(mining_method)

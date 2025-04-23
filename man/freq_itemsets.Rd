@@ -8,12 +8,12 @@ freq_itemsets(
   mode = "partition",
   engine = "arules",
   min_support = NULL,
-  mining_method = "apriori"
+  mining_method = "eclat"
 )
 }
 \arguments{
 \item{mode}{A single character string for the type of model. The only
-possible value for this model is "association".}
+possible value for this model is "partition".}
 
 \item{engine}{A single character string specifying the computational engine
 to use for fitting. The default for this model is \code{"arules"}.}
@@ -22,7 +22,7 @@ to use for fitting. The default for this model is \code{"arules"}.}
 
 \item{mining_method}{A single character string specifying the algorithm to use for
 fitting. Possible algorithms are \code{"apriori"} and \code{"eclat"}. The default for
-this model is \code{"apriori"}.}
+this model is \code{"eclat"}.}
 }
 \value{
 A \code{freq_itemsets} association specification.
