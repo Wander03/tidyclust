@@ -223,14 +223,14 @@ itemsets_predict_helper <- function(object, new_data, ..., prefix = "Cluster_") 
 
 .freq_itemsets_predict_raw_arules <- function(object, new_data, ..., prefix = "Cluster_") {
   res <- itemsets_predict_helper(object, new_data, ..., prefix = "Cluster_")
-  return(tibble::tibble(.pred_items = unname(res)))
+  return(tibble::tibble(.pred_cluster = unname(res)))
 }
 
 .freq_itemsets_predict_arules <- function(object, new_data, ..., prefix = "Cluster_") {
   res <- itemsets_predict_helper(object, new_data, ..., prefix = "Cluster_")
   # Apply threshold to raw predictions
   lapply(res, function(df) {
-    df$.pred_item <- ifelse(is.na(df$.obs_item),
+    df$.pred_cluster <- ifelse(is.na(df$.obs_item),
                             ifelse(df$.pred_item >= 0.5, 1, 0),
                             NA)
     df
