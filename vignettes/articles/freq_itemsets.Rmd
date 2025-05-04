@@ -250,9 +250,42 @@ results %>%
 
 ```{r}
 
+recipe <- recipes::recipe(~ ., data = groceries)
 
-dials::grid_regular(min_support(), 
-                        levels = 10)
+tune_spec <- freq_itemsets(
+  min_support = tune(), 
+  mining_method = "eclat"
+  ) %>%
+  set_engine("arules") %>%
+  set_mode("partition")
+
+min_support_grid <- dials::grid_regular(
+  min_support(), 
+  levels = 10
+  )
+
+tune_workflow <- workflow() %>%  
+  add_recipe(recipe) %>%  
+  add_model(tune_spec)
+
+
+fit(tune_workflow, data = groceries)
+
+
+
+rf_grid_search <-
+  tune_cluster(
+    tune_workflow,
+    # resamples = groceries,
+    grid = min_support_grid
+  )
+
+
+
+
+
+
+
 
 new_data <- groceries[1:5,] %>%
   dplyr::mutate(`whole milk` = as.numeric(NA),
