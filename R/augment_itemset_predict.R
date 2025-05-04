@@ -81,7 +81,9 @@ pred_output <- predict(fi_fit, na_result$na_data, type = 'raw')
 comparison_df <- augment_itemset_predict(pred_output, na_result$truth)
 
 comparison_df %>%
-  yardstick::rmse(truth, preds)
+  dplyr::mutate(truth = factor(truth, levels=c(0, 1))) %>%
+  yardstick::pr_curve(truth, preds) %>%
+  autoplot()
 
 
 #----------------------------------
@@ -93,4 +95,4 @@ comparison_df <- augment_itemset_predict(pred_output, na_result$truth)
 
 comparison_df %>%
   dplyr::mutate(truth = factor(truth, levels=c(0, 1)), preds = factor(preds, levels=c(0, 1))) %>%
-  yardstick::accuracy(truth, preds)
+  yardstick::roc_auc(truth, preds)
