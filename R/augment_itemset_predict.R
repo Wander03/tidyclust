@@ -64,35 +64,35 @@ random_na_with_truth <- function(df, na_prob = 0.3) {
 }
 
 
-set.seed(123)
-na_result <- random_na_with_truth(groceries[1:5,], na_prob = 0.3)
-pred_output <- predict(fi_fit, na_result$na_data)
-comparison_df <- augment_itemset_predict(pred_output, na_result$truth)
-
-comparison_df %>%
-  dplyr::mutate(truth = factor(truth, levels=c(0, 1)), preds = factor(preds, levels=c(0, 1))) %>%
-  yardstick::accuracy(truth, preds)
-
-#----------------------------------
-
-set.seed(123)
-na_result <- random_na_with_truth(groceries[1:5,], na_prob = 0.3)
-pred_output <- predict(fi_fit, na_result$na_data, type = 'raw')
-comparison_df <- augment_itemset_predict(pred_output, na_result$truth)
-
-comparison_df %>%
-  dplyr::mutate(truth = factor(truth, levels=c(0, 1))) %>%
-  yardstick::pr_curve(truth, preds) %>%
-  autoplot()
-
-
-#----------------------------------
-
-set.seed(123)
-na_result <- random_na_with_truth(groceries[1:5,], na_prob = 0.3)
-pred_output <- predict(fi_fit, na_result$na_data)
-comparison_df <- augment_itemset_predict(pred_output, na_result$truth)
-
-comparison_df %>%
-  dplyr::mutate(truth = factor(truth, levels=c(0, 1)), preds = factor(preds, levels=c(0, 1))) %>%
-  yardstick::roc_auc(truth, preds)
+# set.seed(123)
+# na_result <- random_na_with_truth(groceries[1:5,], na_prob = 0.3)
+# pred_output <- predict(fi_fit, na_result$na_data)
+# comparison_df <- augment_itemset_predict(pred_output, na_result$truth)
+#
+# comparison_df %>%
+#   dplyr::mutate(truth = factor(truth, levels=c(0, 1)), preds = factor(preds, levels=c(0, 1))) %>%
+#   yardstick::accuracy(truth, preds)
+#
+# #----------------------------------
+#
+# set.seed(123)
+# na_result <- random_na_with_truth(groceries[1:5,], na_prob = 0.3)
+# pred_output <- predict(fi_fit, na_result$na_data, type = 'raw')
+# comparison_df <- augment_itemset_predict(pred_output, na_result$truth)
+#
+# comparison_df %>%
+#   dplyr::mutate(truth = factor(truth, levels=c(0, 1))) %>%
+#   yardstick::pr_curve(truth, preds) %>%
+#   autoplot()
+#
+#
+# #----------------------------------
+#
+# set.seed(123)
+# na_result <- random_na_with_truth(groceries[1:5,], na_prob = 0.3)
+# pred_output <- predict(fi_fit, na_result$na_data)
+# comparison_df <- augment_itemset_predict(pred_output, na_result$truth)
+#
+# comparison_df %>%
+#   dplyr::mutate(truth = factor(truth, levels=c(0, 1)), preds = factor(preds, levels=c(0, 1))) %>%
+#   yardstick::roc_auc(truth, preds)

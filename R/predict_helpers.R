@@ -158,7 +158,7 @@ itemsets_predict_helper <- function(object, new_data, ..., prefix = "Cluster_") 
 
   # Extract frequent itemsets and their supports
   items <- attr(object, "item_names")
-  itemsets <- arules::inspect(object)
+  itemsets <- arules::DATAFRAME(object)
   frequent_itemsets <- lapply(strsplit(gsub("[{}]", "", itemsets$items), ","), stringr::str_trim)
   supports <- itemsets$support
 
