@@ -214,9 +214,10 @@ itemsets_predict_helper <- function(object, new_data, ..., prefix = "Cluster_") 
 
     # Create result data frame
     data.frame(
-      item = items,
+      item = stringr::str_remove_all(items, "`"), # Remove backticks from item names
       .obs_item = unlist(row_data),
-      .pred_item = pred_values
+      .pred_item = pred_values,
+      row.names = NULL
     )
   })
 }

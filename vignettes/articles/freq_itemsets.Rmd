@@ -233,7 +233,7 @@ new_data <- groceries[1:5,] %>%
 results <- fi_fit %>%
   predict(new_data)
 
-results[[1,1]]
+results$.pred_cluster[[1]]
 ```
 
 Additionally, we can extract the nested predicted output to be formatted in a 
