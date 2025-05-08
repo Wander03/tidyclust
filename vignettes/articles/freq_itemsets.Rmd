@@ -183,6 +183,9 @@ We can also extract the standard `tidyclust` summary list:
 # 
 # fi_summary %>%
 #   str()
+
+
+# Make an extract_fit_summary_items() that returns a warnding saying that centroids are not usfeul, suggust looking at itemsets (and say how to do this)
 ```
 
 Note that, although the frequent itemset algorithm is not focused on cluster's
