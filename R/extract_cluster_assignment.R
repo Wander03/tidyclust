@@ -160,7 +160,7 @@ extract_cluster_assignment.hclust <- function(object,
 #' @export
 extract_cluster_assignment.itemsets <- function(object, ...) {
   items <- attr(object, "item_names")
-  itemsets <- arules::inspect(object)
+  itemsets <- arules::DATAFRAME(object)
 
   itemset_list <- lapply(strsplit(gsub("[{}]", "", itemsets$items), ","), stringr::str_trim)
   support <- itemsets$support
