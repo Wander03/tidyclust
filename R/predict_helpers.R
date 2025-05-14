@@ -231,7 +231,7 @@ itemsets_predict_helper <- function(object, new_data, ..., prefix = "Cluster_") 
   res <- itemsets_predict_helper(object, new_data, ..., prefix = "Cluster_")
   # Apply threshold to raw predictions
   lapply(res, function(df) {
-    df$.pred_cluster <- ifelse(is.na(df$.obs_item),
+    df$.pred_item <- ifelse(is.na(df$.obs_item),
                             ifelse(df$.pred_item >= 0.5, 1, 0),
                             NA)
     df
