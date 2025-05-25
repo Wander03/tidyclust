@@ -44,7 +44,7 @@ groceries <- as.data.frame(as(Groceries, "matrix")) %>%
 
 ## A Brief Introduction to Frequent Itemset Mining
 
-*Frequent Itemset Mining* is a fundamental technique in data mining that
+*Frequent Itemset Mining* (FIM) is a fundamental technique in data mining that
 identifies sets of items that frequently appear together in
 transactional datasets. These itemsets are often used to uncover
 meaningful patterns, such as associations between items, which can then
@@ -146,20 +146,24 @@ with very large tid-lists.
 
 ## **`freq_itemsets` specification in {tidyclust}**
 
-To specify a frequent itemsets mining model in `tidyclust`, simply
-choose a value of `min_support` and (optionally) a mining method:
+To specify a frequent itemsets mining model in `tidyclust`, simply
+choose a value of `min_support` and (optionally) a mining method:
 
 ```{r}
-fi_spec <- freq_itemsets(min_support = 0.05, 
-                           mining_method = "eclat") %>%
+fi_spec <- freq_itemsets(
+  min_support = 0.05,
+  mining_method = "eclat"
+  ) %>%
   set_engine("arules") %>%
   set_mode("partition")
 
 fi_spec
 ```
 
-Currently, the only supported engine is `arules`. The default mining
-method is eclat.
+Currently, the only supported engine is `arules`. The default mining 
+method is eclat because it is generally faster in most practical cases. A 
+default `min_support` value is not provided as it varies significantly depending 
+on the data characteristics.
 
 ## **Fitting `freq_itemsets` models**
 
@@ -192,11 +196,19 @@ Note that, although the frequent itemset algorithm is not focused on cluster's
 like other unsupervised learning algorithms, we have created clusters based on
 the itemsets. For each item, we find all itemsets that include that item:
 
-- Itemsets with the largest size are selected as the "dominate" itemset for the item
+- Itemsets with the largest size are selected as the "dominate" itemset for the 
+item. If there is a tie in size, the itemset with the highest support is selected. 
+This prioritization aligns with findings that larger itemsets with higher 
+support exhibit greater predictive utility.
 
-- If there is a tie in size, the itemset with the highest support is selected
+- If an item has already been assigned a cluster, the algorithm compares the 
+current "best" itemset with the itemset under consideration and re-prioritizes 
+based on size and support. This process repeats until no items are reassigned to 
+a new cluster (convergence).
 
-- If no itemsets include the item, it is assigned a special "outlier" cluster (Cluster_0_1, Cluster_0_2, etc.)
+- Items that appear in no frequent itemsets are labeled as outliers 
+(Cluster_0_X) while items within frequent itemsets are assigned sequential 
+cluster IDs (Cluster_1, Cluster_2, etc.). 
 
 ```{r}
 fi_fit %>% 
@@ -211,17 +223,20 @@ straightforward as in supervised learning. However, given a set of frequent
 itemsets from historical data, it is possible to estimate the likelihood that a 
 missing item in new data is present based on observed co-occurring items.
 
-The predict() function utilizes frequent itemsets and their support values to 
+The `predict()` function utilizes frequent itemsets and their support values to 
 estimate probabilities for missing items in new transactions. For each row in 
-new_data, the function identifies observed items and missing items. It then 
+`new_data`, the function identifies observed items and missing items. It then 
 searches for frequent itemsets that contain both the missing item and at least 
 one observed item. Using the support values of these itemsets, it estimates the 
 probability that the missing item is present based on the confidence of 
-association between observed and missing items.
+association between observed and missing items. If no relevant itemsets are 
+found, the item's global support (frequency in training data) is used as a 
+fallback prediction.
 
 The function fills in missing values with these probability estimates, 
 effectively "predicting" the likelihood of item presence based on historical 
-co-occurrence patterns.
+co-occurrence patterns. The type argument allows returning raw prediction 
+probabilities ('raw') or binary predictions based on a 0.5 threshold ('cluster').
 
 We display the predicted values in the column `.pred_item`, and the observed 
 values in the column `.obs_item`.
@@ -241,70 +256,86 @@ results$.pred_cluster[[1]]
 
 Additionally, we can extract the nested predicted output to be formatted in a 
 single data frame, filling in the `NA` values with their predicted value using
-`extract_predictions`.
+`extract_predictions()`.
 
 ```{r}
 results %>%
   extract_predictions
 ```
 
+## Evaluation Metrics
 
+While support values traditionally assess frequent itemset quality, they do not 
+guarantee predictive performance. Since the `predict()` methodology resembles a 
+recommender system, the results should be evaluated using similar metrics. 
+Common metrics such as root mean squared error (RMSE), accuracy, precision, and 
+recall are implemented in the `yardstick` package.
 
+To prepare the `predict()` output for metric calculation, we provide a new 
+function `augment_itemset_predict()`.
 
 ```{r}
+# Generate data to predict on
+na_result <- tidyclust:::random_na_with_truth(groceries[1:5,], na_prob = 0.3)
+pred_output <- predict(fi_fit, na_result$na_data)
+truth_output <-  na_result$truth # In a real scenario, this would be a separate holdout set
 
-recipe <- recipes::recipe(~ ., data = groceries)
+comparison_df <- augment_itemset_predict(pred_output, truth_output)
 
-tune_spec <- freq_itemsets(
-  min_support = tune(), 
-  mining_method = "eclat"
+# Example for RMSE (using type = 'raw')
+fi_fit %>%
+  predict(new_data = new_data, type = 'raw') %>%
+  augment_itemset_predict(truth = truth_data) %>%
+  yardstick::rmse(truth, preds)
+
+# Example for Precision (using type = 'cluster')
+fi_fit %>%
+  predict(new_data = new_data, type = 'cluster') %>%
+  augment_itemset_predict(truth = truth_data) %>%
+  dplyr::mutate(
+    truth = factor(truth, levels = c(0, 1)),
+    preds = factor(preds, levels = c(0, 1))
   ) %>%
-  set_engine("arules") %>%
-  set_mode("partition")
-
-min_support_grid <- dials::grid_regular(
-  min_support(), 
-  levels = 10
-  )
-
-tune_workflow <- workflow() %>%  
-  add_recipe(recipe) %>%  
-  add_model(tune_spec)
-
-
-fit(tune_workflow, data = groceries)
-
-
-
-rf_grid_search <-
-  tune_cluster(
-    tune_workflow,
-    # resamples = groceries,
-    grid = min_support_grid
-  )
-
-
-
-
-
-
-
-
-new_data <- groceries[1:5,] %>%
-  dplyr::mutate(`whole milk` = as.numeric(NA),
-                frankfurter = as.numeric(NA),
-                yogurt = as.numeric(NA),
-                `other vegetables` = as.numeric(1))
-
-raw <- fi_fit %>%
-  predict(new_data, type = "raw")
-
-threshold <- fi_fit %>%
-  predict(new_data)
-
-
+  yardstick::precision(truth, preds)
 ```
 
+When using RMSE, the raw `predict()` output should be used, while accuracy, 
+precision, and recall will use the cluster output or user thresholded raw 
+output. Caution should be used when looking at accuracy, precision, and recall 
+for imbalanced datasets (where items are infrequently purchased). In such cases, 
+F1-Score offers a balance between precision and recall, and precision-recall 
+(PR) curves aid in determining the best threshold value.
 
+```{r}
+fi_fit %>%
+  predict(new_data = new_data, type = 'raw') %>%
+  augment_itemset_predict(truth = truth_data) %>%
+  dplyr::mutate(truth = factor(truth, levels = c(0, 1))) %>%
+  yardstick::pr_curve(truth, preds) %>%
+  autoplot()
+```
 
+Each point on the PR curve represents the precision and recall of the model at a 
+specific threshold. By varying this threshold, different precision and recall 
+values are obtained, creating the curve. The ideal curve is close to the 
+top-right corner, indicating high precision and high recall.
 
+## Hyperparameter Tuning
+
+The sole parameter capable of being tuned in a FIM model is `min_support.` 
+Selecting the correct value is imperative for finding useful frequent itemsets. 
+The default grid for `min_support` is from 0.1 to 0.5. The lower bound of 0.1 was 
+chosen to avoid reporting too many frequent itemsets, even for smaller datasets, 
+while the upper bound of 0.5 was selected since it ensures that each frequent 
+itemset has a support of at least 50%.
+
+```{r}
+dials::grid_regular(
+  min_support(),
+  levels = 10
+)
+```
+
+Usually, the above object is paired with `tune_cluster`, however cross-validation 
+is not currently implemented for FIM. Future work will focus on improving tuning 
+and implementing cross-validation.
