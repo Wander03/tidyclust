@@ -1,12 +1,33 @@
-#' Extract Predictions from Observation Data Frames
+#' Augment Itemset Predictions with Truth Values
 #'
-#' This function processes a data frame containing observation data frames and extracts non-NA values.
+#' This function processes the output of a `predict()` call for frequent itemset models
+#' and joins it with the corresponding ground truth data. It's designed to prepare
+#' the prediction and truth values in a format suitable for calculating evaluation metrics
+#' using packages like `yardstick`.
 #'
-#' Returns recommender predictions with predicted values imputed into dataset
-#' Notes: currently imputes thresholded probabilities
+#' @param pred_output A data frame that is the output of `predict()` from a `freq_itemsets` model.
+#'   It is expected to have a column named `.pred_cluster`, where each cell contains
+#'   a data frame with prediction details (including `.pred_item`, `.obs_item`, and `item`).
+#' @param truth_output A data frame representing the ground truth. It should have a similar
+#'   structure to the input data used for prediction, where columns represent items
+#'   and rows represent transactions.
 #'
-#' @param pred_output A data frame with one column, where each cell contains a data frame.
-#' @return A data frame with items as columns and non-NA values as rows.
+#' @details
+#' The function first extracts and combines all individual item prediction data frames
+#' nested within the `pred_output`. It then filters for items where a prediction was made
+#' (i.e., `!is.na(.pred_item)`) and standardizes item names by removing backticks.
+#' The `truth_output` is pivoted to a long format to match the structure of the predictions.
+#' Finally, an inner join is performed to ensure that only predicted items are included in
+#' the final result, aligning predictions with their corresponding true values.
+#'
+#' @return A data frame with the following columns:
+#'   \itemize{
+#'     \item `item`: The name of the item.
+#'     \item `row_id`: An identifier for the transaction (row) from which the prediction came.
+#'     \item `preds`: The predicted value for the item (either raw probability or binary prediction).
+#'     \item `truth`: The true value for the item from `truth_output`.
+#'   }
+#'   This output is suitable for direct use with `yardstick` metric functions.
 #' @export
 
 augment_itemset_predict <- function(pred_output, truth_output) {
@@ -33,10 +54,44 @@ augment_itemset_predict <- function(pred_output, truth_output) {
   dplyr::select(result, item, row_id, preds, truth = truth_value)
 }
 
-
-
-
-
+#' Generate Dataframe with Random NAs and Corresponding Truth
+#'
+#' @description
+#' This helper function creates a new data frame by randomly introducing `NA` values
+#' into an input data frame. It also returns the original data frame as a "truth"
+#' reference, which can be useful for simulating scenarios with missing data
+#' for prediction tasks.
+#'
+#' @param df The input data frame to which `NA` values will be introduced.
+#'   It is typically a transactional dataset where columns are items and rows are transactions.
+#' @param na_prob The probability (between 0 and 1) that any given cell in the
+#'   input data frame will be replaced with `NA`.
+#'
+#' @return A list containing two data frames:
+#'   \itemize{
+#'     \item `na_data`: The data frame with `NA` values randomly introduced.
+#'     \item `truth`: The original input data frame, serving as the ground truth.
+#'   }
+#' @examples
+#' # Create a sample data frame
+#' sample_df <- data.frame(
+#'   itemA = c(1, 0, 1),
+#'   itemB = c(0, 1, 1),
+#'   itemC = c(1, 1, 0)
+#' )
+#'
+#' # Generate NA data and truth with 30% NA probability
+#' set.seed(123)
+#' na_data_list <- random_na_with_truth(sample_df, na_prob = 0.3)
+#'
+#' # View the NA data
+#' print(na_data_list$na_data)
+#'
+#' # View the truth data
+#' print(na_data_list$truth)
+#'
+#' This function is not exported as it was used to test and provide examples in
+#' the vignettes, it may be formally introduced in the future.
 random_na_with_truth <- function(df, na_prob = 0.3) {
   # Create a copy of the original dataframe to store truth values
   truth_df <- df
@@ -62,37 +117,3 @@ random_na_with_truth <- function(df, na_prob = 0.3) {
     truth = truth_df
   )
 }
-
-
-# set.seed(123)
-# na_result <- random_na_with_truth(groceries[1:5,], na_prob = 0.3)
-# pred_output <- predict(fi_fit, na_result$na_data)
-# comparison_df <- augment_itemset_predict(pred_output, na_result$truth)
-#
-# comparison_df %>%
-#   dplyr::mutate(truth = factor(truth, levels=c(0, 1)), preds = factor(preds, levels=c(0, 1))) %>%
-#   yardstick::accuracy(truth, preds)
-#
-# #----------------------------------
-#
-# set.seed(123)
-# na_result <- random_na_with_truth(groceries[1:5,], na_prob = 0.3)
-# pred_output <- predict(fi_fit, na_result$na_data, type = 'raw')
-# comparison_df <- augment_itemset_predict(pred_output, na_result$truth)
-#
-# comparison_df %>%
-#   dplyr::mutate(truth = factor(truth, levels=c(0, 1))) %>%
-#   yardstick::pr_curve(truth, preds) %>%
-#   autoplot()
-#
-#
-# #----------------------------------
-#
-# set.seed(123)
-# na_result <- random_na_with_truth(groceries[1:5,], na_prob = 0.3)
-# pred_output <- predict(fi_fit, na_result$na_data)
-# comparison_df <- augment_itemset_predict(pred_output, na_result$truth)
-#
-# comparison_df %>%
-#   dplyr::mutate(truth = factor(truth, levels=c(0, 1)), preds = factor(preds, levels=c(0, 1))) %>%
-#   yardstick::roc_auc(truth, preds)
