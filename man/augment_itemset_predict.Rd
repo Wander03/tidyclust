@@ -2,20 +2,40 @@
 % Please edit documentation in R/augment_itemset_predict.R
 \name{augment_itemset_predict}
 \alias{augment_itemset_predict}
-\title{Extract Predictions from Observation Data Frames}
+\title{Augment Itemset Predictions with Truth Values}
 \usage{
 augment_itemset_predict(pred_output, truth_output)
 }
 \arguments{
-\item{pred_output}{A data frame with one column, where each cell contains a data frame.}
+\item{pred_output}{A data frame that is the output of \code{predict()} from a \code{freq_itemsets} model.
+It is expected to have a column named \code{.pred_cluster}, where each cell contains
+a data frame with prediction details (including \code{.pred_item}, \code{.obs_item}, and \code{item}).}
+
+\item{truth_output}{A data frame representing the ground truth. It should have a similar
+structure to the input data used for prediction, where columns represent items
+and rows represent transactions.}
 }
 \value{
-A data frame with items as columns and non-NA values as rows.
+A data frame with the following columns:
+\itemize{
+\item \code{item}: The name of the item.
+\item \code{row_id}: An identifier for the transaction (row) from which the prediction came.
+\item \code{preds}: The predicted value for the item (either raw probability or binary prediction).
+\item \code{truth}: The true value for the item from \code{truth_output}.
+}
+This output is suitable for direct use with \code{yardstick} metric functions.
 }
 \description{
-This function processes a data frame containing observation data frames and extracts non-NA values.
+This function processes the output of a \code{predict()} call for frequent itemset models
+and joins it with the corresponding ground truth data. It's designed to prepare
+the prediction and truth values in a format suitable for calculating evaluation metrics
+using packages like \code{yardstick}.
 }
 \details{
-Returns recommender predictions with predicted values imputed into dataset
-Notes: currently imputes thresholded probabilities
+The function first extracts and combines all individual item prediction data frames
+nested within the \code{pred_output}. It then filters for items where a prediction was made
+(i.e., \code{!is.na(.pred_item)}) and standardizes item names by removing backticks.
+The \code{truth_output} is pivoted to a long format to match the structure of the predictions.
+Finally, an inner join is performed to ensure that only predicted items are included in
+the final result, aligning predictions with their corresponding true values.
 }

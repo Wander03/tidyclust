@@ -2,8 +2,10 @@
 #'
 #' @description
 #'
-#' `freq_itemsets()` defines a model that finds frequent itemsets based on
-#' specified minimum support.
+#' `freq_itemsets()` defines a model for Frequent Itemset Mining (FIM), a data mining
+#' technique used to discover relationships between items in transactional datasets.
+#' This model finds sets of items (itemsets) that frequently co-occur based on a
+#' user-specified minimum support threshold.
 #'
 #' The method of estimation is chosen by setting the model engine. The
 #' engine-specific pages for this model are listed below.
@@ -13,7 +15,8 @@
 #' @param mode A single character string for the type of model. The only
 #'   possible value for this model is "partition".
 #' @param engine A single character string specifying the computational engine
-#'   to use for fitting. The default for this model is `"arules"`.
+#'   to use for fitting. The default for this model is `"arules"`. Currently,
+#'   `"arules"` is the only supported engine.
 #' @param mining_method A single character string specifying the algorithm to use for
 #'   fitting. Possible algorithms are `"apriori"` and `"eclat"`. The default for
 #'   this model is `"eclat"`.
@@ -23,7 +26,18 @@
 #'
 #' ## What does it mean to predict?
 #'
-#' WORK IN PROGRESS
+#' For `freq_itemsets` models, the `predict()` function is implemented as a recommender system.
+#' Given new data with partial transaction information (i.e., some items observed, others `NA`),
+#' the model predicts other items likely to be in the transaction.
+#'
+#' Predictions are based on item-level probabilities derived from the confidence of frequent itemsets.
+#' For each missing item, relevant frequent itemsets containing both the missing item and observed items are identified.
+#' Confidence (support of itemset / support of observed items) is aggregated across relevant itemsets.
+#' If no relevant itemsets are found, the item's global support from the training data is used as a fallback.
+#'
+#' The `predict()` output provides a nested data frame per transaction, including `item`,
+#' `.obs_item` (observed status), and `.pred_item` (predicted values).
+#' The `extract_predictions()` helper function can reformat this nested output into a single data frame.
 #'
 #' @return A `freq_itemsets` association specification.
 #'

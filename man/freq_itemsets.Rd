@@ -16,7 +16,8 @@ freq_itemsets(
 possible value for this model is "partition".}
 
 \item{engine}{A single character string specifying the computational engine
-to use for fitting. The default for this model is \code{"arules"}.}
+to use for fitting. The default for this model is \code{"arules"}. Currently,
+\code{"arules"} is the only supported engine.}
 
 \item{min_support}{Positive double, minimum support for an itemset (between 0 and 1).}
 
@@ -28,8 +29,10 @@ this model is \code{"eclat"}.}
 A \code{freq_itemsets} association specification.
 }
 \description{
-\code{freq_itemsets()} defines a model that finds frequent itemsets based on
-specified minimum support.
+\code{freq_itemsets()} defines a model for Frequent Itemset Mining (FIM), a data mining
+technique used to discover relationships between items in transactional datasets.
+This model finds sets of items (itemsets) that frequently co-occur based on a
+user-specified minimum support threshold.
 
 The method of estimation is chosen by setting the model engine. The
 engine-specific pages for this model are listed below.
@@ -40,7 +43,18 @@ engine-specific pages for this model are listed below.
 \details{
 \subsection{What does it mean to predict?}{
 
-WORK IN PROGRESS
+For \code{freq_itemsets} models, the \code{predict()} function is implemented as a recommender system.
+Given new data with partial transaction information (i.e., some items observed, others \code{NA}),
+the model predicts other items likely to be in the transaction.
+
+Predictions are based on item-level probabilities derived from the confidence of frequent itemsets.
+For each missing item, relevant frequent itemsets containing both the missing item and observed items are identified.
+Confidence (support of itemset / support of observed items) is aggregated across relevant itemsets.
+If no relevant itemsets are found, the item's global support from the training data is used as a fallback.
+
+The \code{predict()} output provides a nested data frame per transaction, including \code{item},
+\code{.obs_item} (observed status), and \code{.pred_item} (predicted values).
+The \code{extract_predictions()} helper function can reformat this nested output into a single data frame.
 }
 }
 \examples{

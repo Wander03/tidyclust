@@ -179,17 +179,11 @@ fi_fit %>%
   summary()
 ```
 
-We can also extract the standard `tidyclust` summary list:
+We can not extract the standard `tidyclust` summary list since centriods are not 
+useful for frequent itemsets, however we can extract the frequent itemsets:
 
 ```{r}
-# fi_summary <- fi_fit %>%
-#   extract_fit_summary()
-# 
-# fi_summary %>%
-#   str()
-
-
-# Make an extract_fit_summary_items() that returns a warnding saying that centroids are not usfeul, suggust looking at itemsets (and say how to do this)
+arules::inspect(fi_fit$fit)
 ```
 
 Note that, although the frequent itemset algorithm is not focused on cluster's
@@ -285,13 +279,13 @@ comparison_df <- augment_itemset_predict(pred_output, truth_output)
 # Example for RMSE (using type = 'raw')
 fi_fit %>%
   predict(new_data = new_data, type = 'raw') %>%
-  augment_itemset_predict(truth = truth_data) %>%
+  augment_itemset_predict(truth = truth_output) %>%
   yardstick::rmse(truth, preds)
 
 # Example for Precision (using type = 'cluster')
 fi_fit %>%
   predict(new_data = new_data, type = 'cluster') %>%
-  augment_itemset_predict(truth = truth_data) %>%
+  augment_itemset_predict(truth = truth_output) %>%
   dplyr::mutate(
     truth = factor(truth, levels = c(0, 1)),
     preds = factor(preds, levels = c(0, 1))
@@ -309,7 +303,7 @@ F1-Score offers a balance between precision and recall, and precision-recall
 ```{r}
 fi_fit %>%
   predict(new_data = new_data, type = 'raw') %>%
-  augment_itemset_predict(truth = truth_data) %>%
+  augment_itemset_predict(truth = truth_output) %>%
   dplyr::mutate(truth = factor(truth, levels = c(0, 1))) %>%
   yardstick::pr_curve(truth, preds) %>%
   autoplot()
