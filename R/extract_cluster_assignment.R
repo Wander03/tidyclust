@@ -159,6 +159,7 @@ extract_cluster_assignment.hclust <- function(object,
 
 #' @export
 extract_cluster_assignment.itemsets <- function(object, ...) {
+  max_iter = 1000
   items <- attr(object, "item_names")
   itemsets <- arules::DATAFRAME(object)
 
@@ -166,10 +167,12 @@ extract_cluster_assignment.itemsets <- function(object, ...) {
   support <- itemsets$support
   clusters <- numeric(length(items))
   changed <- TRUE  # Flag to track convergence
+  iter <- 0 # Initialize iteration counter
 
   # Continue until no changes occur
-  while (changed) {
+  while (changed && iter < max_iter) {
     changed <- FALSE
+    iter <- iter + 1
     for (i in 1:length(items)) {
       current_item <- items[i]
       relevant_itemsets <- which(sapply(itemset_list, function(x) current_item %in% x))
@@ -212,6 +215,16 @@ extract_cluster_assignment.itemsets <- function(object, ...) {
         }
       }
     }
+  }
+
+  if (iter == max_iter && changed) {
+    rlang::warn(
+      paste0(
+        "Cluster assignment did not converge within the maximum of ",
+        max_iter,
+        " iterations. Returning the current cluster assignments."
+      )
+    )
   }
 
   item_assignment_tibble_w_outliers(clusters, ...)
