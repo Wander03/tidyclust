@@ -236,17 +236,18 @@ We display the predicted values in the column `.pred_item`, and the observed
 values in the column `.obs_item`.
 
 ```{r}
-new_data <- groceries[1:5,] %>%
-  dplyr::mutate(`whole milk` = as.numeric(NA),
-                frankfurter = as.numeric(NA),
-                yogurt = as.numeric(NA),
-                `other vegetables` = as.numeric(1))
+new_data <- groceries[1:5,]  %>%
+  tidyclust:::random_na_with_truth(na_prob = 0.3)
 
 results <- fi_fit %>%
-  predict(new_data)
+  predict(new_data$na_data)
 
 results$.pred_cluster[[1]]
 ```
+
+The function `random_na_with_truth()` is used for testing purposes to randomly 
+assign values to be `NA`, however it can be accessed using in `tidyclust` using 
+the `:::`.
 
 Additionally, we can extract the nested predicted output to be formatted in a 
 single data frame, filling in the `NA` values with their predicted value using
