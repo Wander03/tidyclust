@@ -1,24 +1,33 @@
 # bad input
 
     Code
-      k_means(mode = "bogus")
+      freq_itemsets(mode = "bogus")
     Condition
       Error in `modelenv::check_spec_mode_engine_val()`:
-      ! 'bogus' is not a known mode for model `k_means()`.
+      ! 'bogus' is not a known mode for model `freq_itemsets()`.
 
 ---
 
     Code
-      bt <- k_means(num_clusters = -1) %>% set_engine("stats")
-      fit(bt, mpg ~ ., mtcars)
+      bt <- freq_itemsets(mining_method = "bogus")
+      fit(bt, ~., toy_df)
     Condition
       Error in `check_args()`:
-      ! The number of centers should be >= 0.
+      ! The mining method should be either 'apriori' or 'eclat'.
 
 ---
 
     Code
-      translate_tidyclust(k_means(), engine = NULL)
+      bt <- freq_itemsets(min_support = -1) %>% set_engine("arules")
+      fit(bt, ~., toy_df)
+    Condition
+      Error in `check_args()`:
+      ! The minimum support should be between 0 and 1.
+
+---
+
+    Code
+      translate_tidyclust(freq_itemsets(), engine = NULL)
     Condition
       Error in `translate_tidyclust.default()`:
       ! Please set an engine.
@@ -26,60 +35,66 @@
 ---
 
     Code
-      translate_tidyclust(k_means(formula = ~x))
+      translate_tidyclust(freq_itemsets(formula = ~x))
     Condition
-      Error in `k_means()`:
+      Error in `freq_itemsets()`:
       ! unused argument (formula = ~x)
+
+# extract_centroids work
+
+    Code
+      extract_centroids(fi_fit)
+    Condition
+      Error in `extract_centroids()`:
+      ! Centroids are not usfeul for frequent itemsets, we suggust looking at the frequent itemsets directly.
+       Please use arules::inspect() on the fit of your cluster specification.
 
 # printing
 
     Code
-      k_means()
+      freq_itemsets()
     Output
-      K Means Cluster Specification (partition)
+      Frequent Itemsets Mining Specification (partition)
       
-      Computational engine: stats 
+      Main Arguments:
+        mining_method = eclat
+      
+      Computational engine: arules 
       
 
 ---
 
     Code
-      k_means(num_clusters = 10)
+      freq_itemsets(min_support = 0.5)
     Output
-      K Means Cluster Specification (partition)
+      Frequent Itemsets Mining Specification (partition)
       
       Main Arguments:
-        num_clusters = 10
+        min_support = 0.5
+        mining_method = eclat
       
-      Computational engine: stats 
+      Computational engine: arules 
       
 
 # updating
 
     Code
-      k_means(num_clusters = 5) %>% update(num_clusters = tune())
+      freq_itemsets(min_support = 0.5) %>% update(min_support = tune())
     Output
-      K Means Cluster Specification (partition)
+      Frequent Itemsets Mining Specification (partition)
       
       Main Arguments:
-        num_clusters = tune()
+        min_support = tune()
+        mining_method = eclat
       
-      Computational engine: stats 
+      Computational engine: arules 
       
 
-# errors if `num_clust` isn't specified
+# errors if `min_support` isn't specified
 
     Code
-      k_means() %>% set_engine("stats") %>% fit(~., data = mtcars)
+      freq_itemsets() %>% set_engine("arules") %>% fit(~., data = toy_df)
     Condition
       Error in `fit()`:
-      ! Please specify `num_clust` to be able to fit specification.
-
----
-
-    Code
-      k_means() %>% set_engine("ClusterR") %>% fit(~., data = mtcars)
-    Condition
-      Error in `tidyclust::.k_means_fit_ClusterR()`:
-      ! argument "clusters" is missing, with no default
+      ! Please specify `min_support` to be able to fit specification.
 

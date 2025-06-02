@@ -1,82 +1,75 @@
+toy_df <- data.frame(
+  'beer'    = c(F, T, T, T, F),
+  'milk'    = c(T, F, T, T, T),
+  'bread'   = c(T, T, F, T, T),
+  'diapers' = c(T, T, T, T, T),
+  'eggs'    = c(F, T, F, F, F)
+)
+
+toy_pred <- data.frame(
+  'beer'    = c(F),
+  'milk'    = c(NA),
+  'bread'   = c(T),
+  'diapers' = c(T),
+  'eggs'    = c(F)
+)
+
 test_that("fitting", {
   set.seed(1234)
-  spec <- k_means(num_clusters = 5) %>%
-    set_engine("stats")
+  spec <- freq_itemsets(min_support = 0.5) %>%
+    set_engine("arules")
 
   expect_no_error(
-    res <- fit(spec, ~., mtcars)
-  )
-
-  expect_no_error(
-    res <- fit_xy(spec, mtcars)
+    res <- fit(spec, ~., toy_df)
   )
 })
 
 test_that("predicting", {
   set.seed(1234)
-  spec <- k_means(num_clusters = 3) %>%
-    set_engine("stats")
+  spec <- freq_itemsets(min_support = 0.5) %>%
+    set_engine("arules")
 
-  res <- fit(spec, ~., iris)
+  res <- fit(spec, ~., toy_df)
 
-  preds <- predict(res, iris[c(25, 75, 125), ])
+  preds <- predict(res, toy_pred)$.pred_cluster[[1]]$.pred_item
 
   expect_identical(
     preds,
-    tibble::tibble(.pred_cluster = factor(paste0("Cluster_", 1:3)))
+    c(NA, 1, NA, NA, NA)
   )
 })
 
-test_that("all levels are preserved with 1 row predictions", {
+test_that("extract_centroids works", {
   set.seed(1234)
-  spec <- k_means(num_clusters = 3) %>%
-    set_engine("stats")
+  fi_fit <- freq_itemsets(min_support = 0.5) %>%
+    set_engine("arules") %>%
+    fit(~., toy_df %>% dplyr::mutate(across(everything(), as.numeric)))
 
-  res <- fit(spec, ~., mtcars)
-
-  preds <- predict(res, mtcars[1, ])
-
-  expect_identical(
-    levels(preds$.pred_cluster),
-    paste0("Cluster_", 1:3)
-  )
-})
-
-test_that("extract_centroids() works", {
-  set.seed(1234)
-  spec <- k_means(num_clusters = 3) %>%
-    set_engine("stats")
-
-  res <- fit(spec, ~., iris)
-
-  centroids <- extract_centroids(res)
-
-  expected <- vctrs::vec_cbind(
-    tibble::tibble(.cluster = factor(paste0("Cluster_", 1:3))),
-    tibble::as_tibble(res$fit$centers)
-  )
-
-  expect_identical(
-    centroids,
-    expected
-  )
+  expect_snapshot(error = TRUE, extract_centroids(fi_fit))
 })
 
 test_that("extract_cluster_assignment() works", {
   set.seed(1234)
-  spec <- k_means(num_clusters = 3) %>%
-    set_engine("stats")
+  fi_fit <- freq_itemsets(min_support = 0.5, mining_method = "eclat") %>%
+    set_engine("arules") %>%
+    fit(~., toy_df %>% dplyr::mutate(across(everything(), as.numeric)))
 
-  res <- fit(spec, ~., iris)
+  set.seed(1234)
+  ref_res <- arules::eclat(data = toy_df,
+                           parameter = list(support = 0.5),
+                           control = list(verbose = FALSE))
 
-  clusters <- extract_cluster_assignment(res)
+  ref_itemsets <- arules::DATAFRAME(ref_res)
+  ref_clusts <- c(1, 2, 2, 2, 0)
+  ref_outliers <- "eggs"
 
-  expected <- vctrs::vec_cbind(
-    tibble::tibble(.cluster = factor(paste0("Cluster_", res$fit$cluster)))
+  expect_equal(
+    arules::DATAFRAME(fi_fit$fit),
+    ref_itemsets
   )
 
-  expect_identical(
-    clusters,
-    expected
+  expect_equal(
+    ref_clusts,
+    extract_cluster_assignment(fi_fit)$.cluster %>% as.numeric() - 1
   )
 })

@@ -137,8 +137,13 @@ update.freq_itemsets <- function(object,
 check_args.freq_itemsets <- function(object) {
   args <- lapply(object$args, rlang::eval_tidy)
 
-  if (all(is.numeric(args$min_support)) && any(args$min_support < 0) && any(args$min_support > 1)) {
+  if (all(is.numeric(args$min_support)) && (any(args$min_support < 0) || any(args$min_support > 1))) {
     rlang::abort("The minimum support should be between 0 and 1.")
+  }
+
+  if (all(is.character(args$mining_method)) &&
+      !all(args$mining_method %in% c("apriori", "eclat"))) {
+    rlang::abort("The mining method should be either 'apriori' or 'eclat'.")
   }
 
   invisible(object)
@@ -176,11 +181,15 @@ translate_tidyclust.freq_itemsets <- function(x, engine = x$engine, ...) {
   }
 
   if (mining_method == "apriori") {
-    res <- arules::apriori(data = x, parameter = list(support = min_support, target = "frequent itemsets"))
+    res <- arules::apriori(data = x,
+                           parameter = list(support = min_support, target = "frequent itemsets"),
+                           control = list(verbose = FALSE))
   } else if (mining_method == "eclat") {
-    res <- arules::eclat(data = x, parameter = list(support = min_support))
+    res <- arules::eclat(data = x,
+                         parameter = list(support = min_support),
+                         control = list(verbose = FALSE))
   } else {
-    stop("Invalid method specified. Choose 'apriori' or 'eclat'.")
+    stop("Invalid mining method specified. Choose 'apriori' or 'eclat'.")
   }
 
   attr(res, "item_names") <- colnames(x)

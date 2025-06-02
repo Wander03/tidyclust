@@ -64,3 +64,12 @@ test_that("prefix is passed in predict()", {
     all(substr(res$.pred_cluster, 1, 2) == "C_")
   )
 })
+
+test_that("predict() errors for cluster spec for freq_itemsets", {
+  spec <- tidyclust::freq_itemsets(min_support = 0.5)
+
+  expect_snapshot(
+    error = TRUE,
+    predict(spec)
+  )
+})

@@ -179,7 +179,7 @@ fi_fit %>%
   summary()
 ```
 
-We can not extract the standard `tidyclust` summary list since centriods are not 
+We can not extract the standard `tidyclust` summary list since centroids are not 
 useful for frequent itemsets, however we can extract the frequent itemsets:
 
 ```{r}
