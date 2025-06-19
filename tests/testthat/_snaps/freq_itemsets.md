@@ -3,8 +3,8 @@
     Code
       freq_itemsets(mode = "bogus")
     Condition
-      Error in `modelenv::check_spec_mode_engine_val()`:
-      ! 'bogus' is not a known mode for model `freq_itemsets()`.
+      Error in `freq_itemsets()`:
+      ! "bogus" is not a known mode for model `freq_itemsets()`.
 
 ---
 

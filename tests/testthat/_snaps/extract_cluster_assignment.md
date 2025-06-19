@@ -39,5 +39,6 @@
       fi_spec %>% extract_cluster_assignment()
     Condition
       Error in `extract_cluster_assignment()`:
-      ! This function requires a fitted model. Please use `fit()` on your cluster specification.
+      ! This function requires a fitted model.
+      i Please use `fit()` on your cluster specification.
 
