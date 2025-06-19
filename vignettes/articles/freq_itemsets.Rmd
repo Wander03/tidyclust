@@ -272,10 +272,8 @@ function `augment_itemset_predict()`.
 ```{r}
 # Generate data to predict on
 na_result <- tidyclust:::random_na_with_truth(groceries[1:5,], na_prob = 0.3)
-pred_output <- predict(fi_fit, na_result$na_data)
+new_data <- na_result$na_data # In a real scenario, this would be new, untrained on, data
 truth_output <-  na_result$truth # In a real scenario, this would be a separate holdout set
-
-comparison_df <- augment_itemset_predict(pred_output, truth_output)
 
 # Example for RMSE (using type = 'raw')
 fi_fit %>%
@@ -326,7 +324,7 @@ itemset has a support of at least 50%.
 
 ```{r}
 dials::grid_regular(
-  min_support(),
+  dials::min_support(),
   levels = 10
 )
 ```
