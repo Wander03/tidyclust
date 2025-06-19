@@ -1,13 +1,13 @@
 test_that("kmeans sse metrics work", {
   set.seed(1234)
-  kmeans_fit_stats <- k_means(num_clusters = mtcars[1:3, ]) %>%
-    set_engine("stats", algorithm = "MacQueen") %>%
+  kmeans_fit_stats <- k_means(num_clusters = mtcars[1:3, ]) |>
+    set_engine("stats", algorithm = "MacQueen") |>
     fit(~., mtcars)
 
   # We don't use CENTROIDS argument becuase it breaks testing for different
   # versions of ClusterR #186
-  kmeans_fit_ClusterR <- k_means(num_clusters = 3) %>%
-    set_engine("ClusterR") %>%
+  kmeans_fit_ClusterR <- k_means(num_clusters = 3) |>
+    set_engine("ClusterR") |>
     fit(~., mtcars)
 
   km_orig <- kmeans(mtcars, centers = mtcars[1:3, ], algorithm = "MacQueen")
@@ -16,7 +16,8 @@ test_that("kmeans sse metrics work", {
     clusters = 3
   )
 
-  expect_equal(sse_within(kmeans_fit_stats)$wss,
+  expect_equal(
+    sse_within(kmeans_fit_stats)$wss,
     c(42877.103, 76954.010, 7654.146), # hard coded because of order
     tolerance = 0.005
   )
@@ -37,7 +38,8 @@ test_that("kmeans sse metrics work", {
     tolerance = 0.005
   )
 
-  expect_equal(sse_within(kmeans_fit_ClusterR)$wss,
+  expect_equal(
+    sse_within(kmeans_fit_ClusterR)$wss,
     c(42877.103, 56041.432, 4665.041), # hard coded because of order
     tolerance = 0.005
   )
@@ -60,13 +62,14 @@ test_that("kmeans sse metrics work", {
 })
 
 test_that("kmeans sse metrics work on new data", {
-  kmeans_fit_stats <- k_means(num_clusters = mtcars[1:3, ]) %>%
-    set_engine("stats", algorithm = "MacQueen") %>%
+  kmeans_fit_stats <- k_means(num_clusters = mtcars[1:3, ]) |>
+    set_engine("stats", algorithm = "MacQueen") |>
     fit(~., mtcars)
 
   new_data <- mtcars[1:4, ]
 
-  expect_equal(sse_within(kmeans_fit_stats, new_data)$wss,
+  expect_equal(
+    sse_within(kmeans_fit_stats, new_data)$wss,
     c(2799.21, 12855.17),
     tolerance = 0.005
   )
@@ -89,18 +92,18 @@ test_that("kmeans sse metrics work on new data", {
 })
 
 test_that("kmeans sihouette metrics work", {
-  kmeans_fit_stats <- k_means(num_clusters = mtcars[1:3, ]) %>%
-    set_engine("stats", algorithm = "MacQueen") %>%
+  kmeans_fit_stats <- k_means(num_clusters = mtcars[1:3, ]) |>
+    set_engine("stats", algorithm = "MacQueen") |>
     fit(~., mtcars)
 
-  kmeans_fit_ClusterR <- k_means(num_clusters = 3) %>%
-    set_engine("ClusterR") %>%
+  kmeans_fit_ClusterR <- k_means(num_clusters = 3) |>
+    set_engine("ClusterR") |>
     fit(~., mtcars)
 
   new_data <- mtcars[1:4, ]
 
-  dists <- mtcars %>%
-    as.matrix() %>%
+  dists <- mtcars |>
+    as.matrix() |>
     dist()
 
   expect_equal(
@@ -121,12 +124,12 @@ test_that("kmeans sihouette metrics work", {
 })
 
 test_that("kmeans sihouette metrics work with new data", {
-  kmeans_fit_stats <- k_means(num_clusters = mtcars[1:3, ]) %>%
-    set_engine("stats", algorithm = "MacQueen") %>%
+  kmeans_fit_stats <- k_means(num_clusters = mtcars[1:3, ]) |>
+    set_engine("stats", algorithm = "MacQueen") |>
     fit(~., mtcars)
 
-  kmeans_fit_ClusterR <- k_means(num_clusters = 3) %>%
-    set_engine("ClusterR") %>%
+  kmeans_fit_ClusterR <- k_means(num_clusters = 3) |>
+    set_engine("ClusterR") |>
     fit(~., mtcars)
 
   new_data <- mtcars[1:4, ]

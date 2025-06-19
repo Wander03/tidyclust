@@ -4,7 +4,12 @@
 \alias{silhouette}
 \title{Measures silhouette between clusters}
 \usage{
-silhouette(object, new_data = NULL, dists = NULL, dist_fun = Rfast::Dist)
+silhouette(
+  object,
+  new_data = NULL,
+  dists = NULL,
+  dist_fun = philentropy::distance
+)
 }
 \arguments{
 \item{object}{A fitted tidyclust model}
@@ -27,13 +32,13 @@ Measures silhouette between clusters
 returns the average of the values given by \code{silhouette()}.
 }
 \examples{
-kmeans_spec <- k_means(num_clusters = 5) \%>\%
+kmeans_spec <- k_means(num_clusters = 5) |>
   set_engine("stats")
 
 kmeans_fit <- fit(kmeans_spec, ~., mtcars)
 
-dists <- mtcars \%>\%
-  as.matrix() \%>\%
+dists <- mtcars |>
+  as.matrix() |>
   dist()
 
 silhouette(kmeans_fit, dists = dists)

@@ -1,16 +1,16 @@
 library(tidyverse)
 library(celery)
 
-ir <- iris[,-5]
+ir <- iris[, -5]
 
 hclust(dist(ir))
 
 bob <- hclust_fit(ir)
 
-hc <- hier_clust(k = 3) %>%
-  fit(~ ., data = ir)
+hc <- hier_clust(k = 3) |>
+  fit(~., data = ir)
 
-km <- k_means(k = 3) %>%
+km <- k_means(k = 3) |>
   fit(~., data = ir)
 
 thing <- tibble(
@@ -19,13 +19,13 @@ thing <- tibble(
   truth = iris$Species
 )
 
-thing %>%
-  count(hc_c,truth)
+thing |>
+  count(hc_c, truth)
 
 cutree(hc$fit, k = 3)
 
-# hc %>%
-#   extract_fit_engine() %>%
+# hc |>
+#   extract_fit_engine() |>
 #   cutree(k = 3)
 
 ## reconcile?

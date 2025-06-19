@@ -22,7 +22,7 @@ test_that("extract_centroids() errors for hier_clust() with missing args", {
 
   expect_snapshot(
     error = TRUE,
-    hclust_fit %>%
+    hclust_fit |>
       extract_centroids()
   )
 })
@@ -34,7 +34,7 @@ test_that("extract_centroids() errors for hier_clust() with k arg", {
 
   expect_snapshot(
     error = TRUE,
-    hclust_fit %>%
+    hclust_fit |>
       extract_centroids(k = 3)
   )
 })
@@ -46,7 +46,7 @@ test_that("extract_centroids() errors for hier_clust() with h arg", {
 
   expect_snapshot(
     error = TRUE,
-    hclust_fit %>%
+    hclust_fit |>
       extract_centroids(h = 3)
   )
 })
@@ -56,15 +56,15 @@ test_that("passed arguments overwrites model arguments", {
 
   hclust_fit <- fit(hclust_spec, ~., mtcars)
 
-  res <- hclust_fit %>%
+  res <- hclust_fit |>
     extract_centroids(num_clusters = 1)
 
   expect_identical(length(levels(res$.cluster)), 1L)
 })
 
 test_that("prefix is passed in extract_centroids()", {
-  spec <- tidyclust::k_means(num_clusters = 4) %>%
-    fit(~ ., data = mtcars)
+  spec <- tidyclust::k_means(num_clusters = 4) |>
+    fit(~., data = mtcars)
 
   res <- extract_centroids(spec, prefix = "C_")
 

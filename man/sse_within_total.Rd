@@ -16,7 +16,15 @@ sse_within_total(object, ...)
 
 \method{sse_within_total}{workflow}(object, new_data = NULL, dist_fun = NULL, ...)
 
-sse_within_total_vec(object, new_data = NULL, dist_fun = Rfast::dista, ...)
+sse_within_total_vec(
+  object,
+  new_data = NULL,
+  dist_fun = function(x, y) {
+     philentropy::dist_many_many(x, y, method =
+    "euclidean")
+ },
+  ...
+)
 }
 \arguments{
 \item{object}{A fitted kmeans tidyclust model}
@@ -39,7 +47,7 @@ Not to be confused with \code{\link[=sse_within]{sse_within()}} that returns a t
 with within-cluster SSE, one row for each cluster.
 }
 \examples{
-kmeans_spec <- k_means(num_clusters = 5) \%>\%
+kmeans_spec <- k_means(num_clusters = 5) |>
   set_engine("stats")
 
 kmeans_fit <- fit(kmeans_spec, ~., mtcars)

@@ -2,7 +2,7 @@ test_that("fitting", {
   skip_if_not_installed("ClusterR")
 
   set.seed(1234)
-  spec <- k_means(num_clusters = 3) %>%
+  spec <- k_means(num_clusters = 3) |>
     set_engine("ClusterR")
 
   expect_no_error(
@@ -18,7 +18,7 @@ test_that("predicting", {
   skip_if_not_installed("ClusterR")
 
   set.seed(1234)
-  spec <- k_means(num_clusters = 3) %>%
+  spec <- k_means(num_clusters = 3) |>
     set_engine("ClusterR")
 
   res <- fit(spec, ~., mtcars)
@@ -27,14 +27,18 @@ test_that("predicting", {
 
   expect_identical(
     preds,
-    tibble::tibble(.pred_cluster = factor(paste0("Cluster_", c(1, 1, 1, 2, 2)),
-                                          paste0("Cluster_", 1:3)))
+    tibble::tibble(
+      .pred_cluster = factor(
+        paste0("Cluster_", c(1, 1, 1, 2, 2)),
+        paste0("Cluster_", 1:3)
+      )
+    )
   )
 })
 
 test_that("all levels are preserved with 1 row predictions", {
   set.seed(1234)
-  spec <- k_means(num_clusters = 3) %>%
+  spec <- k_means(num_clusters = 3) |>
     set_engine("ClusterR")
 
   res <- fit(spec, ~., mtcars)
@@ -51,7 +55,7 @@ test_that("extract_centroids() works", {
   skip_if_not_installed("ClusterR")
 
   set.seed(1234)
-  spec <- k_means(num_clusters = 3) %>%
+  spec <- k_means(num_clusters = 3) |>
     set_engine("ClusterR")
 
   res <- fit(spec, ~., mtcars)
@@ -73,7 +77,7 @@ test_that("extract_cluster_assignment() works", {
   skip_if_not_installed("ClusterR")
 
   set.seed(1234)
-  spec <- k_means(num_clusters = 3) %>%
+  spec <- k_means(num_clusters = 3) |>
     set_engine("ClusterR")
 
   res <- fit(spec, ~., mtcars)

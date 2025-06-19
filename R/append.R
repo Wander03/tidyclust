@@ -1,9 +1,11 @@
 # https://github.com/tidymodels/tune/blob/main/R/pull.R#L136
-append_predictions <- function(collection,
-                               predictions,
-                               split,
-                               control,
-                               .config = NULL) {
+append_predictions <- function(
+  collection,
+  predictions,
+  split,
+  control,
+  .config = NULL
+) {
   if (!control$save_pred) {
     return(NULL)
   }
@@ -27,20 +29,22 @@ append_predictions <- function(collection,
   dplyr::bind_rows(collection, predictions)
 }
 
-append_metrics <- function(workflow,
-                           collection,
-                           predictions,
-                           metrics,
-                           param_names,
-                           event_level,
-                           split,
-                           .config = NULL) {
+append_metrics <- function(
+  workflow,
+  collection,
+  predictions,
+  metrics,
+  param_names,
+  event_level,
+  split,
+  .config = NULL
+) {
   if (inherits(predictions, "try-error")) {
     return(collection)
   }
 
-  params <- predictions %>%
-    dplyr::select(dplyr::all_of(param_names)) %>%
+  params <- predictions |>
+    dplyr::select(dplyr::all_of(param_names)) |>
     dplyr::distinct()
 
   tmp_est <- metrics(workflow, new_data = rsample::analysis(split))
@@ -54,15 +58,17 @@ append_metrics <- function(workflow,
   dplyr::bind_rows(collection, tmp_est)
 }
 
-append_extracts <- function(collection,
-                            workflow,
-                            grid,
-                            split,
-                            ctrl,
-                            .config = NULL) {
+append_extracts <- function(
+  collection,
+  workflow,
+  grid,
+  split,
+  ctrl,
+  .config = NULL
+) {
   extracts <-
-    grid %>%
-    dplyr::bind_cols(labels(split)) %>%
+    grid |>
+    dplyr::bind_cols(labels(split)) |>
     dplyr::mutate(
       .extracts = list(
         extract_details(workflow, ctrl$extract)

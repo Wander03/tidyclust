@@ -1,6 +1,6 @@
 test_that("fitting", {
   set.seed(1234)
-  spec <- hier_clust(num_clusters = 3) %>%
+  spec <- hier_clust(num_clusters = 3) |>
     set_engine("stats")
 
   expect_no_error(
@@ -14,7 +14,7 @@ test_that("fitting", {
 
 test_that("predicting", {
   set.seed(1234)
-  spec <- hier_clust(num_clusters = 3) %>%
+  spec <- hier_clust(num_clusters = 3) |>
     set_engine("stats")
 
   res <- fit(spec, ~., iris)
@@ -29,7 +29,7 @@ test_that("predicting", {
 
 test_that("all levels are preserved with 1 row predictions", {
   set.seed(1234)
-  spec <- hier_clust(num_clusters = 3) %>%
+  spec <- hier_clust(num_clusters = 3) |>
     set_engine("stats")
 
   res <- fit(spec, ~., mtcars)
@@ -44,7 +44,7 @@ test_that("all levels are preserved with 1 row predictions", {
 
 test_that("extract_centroids() works", {
   set.seed(1234)
-  spec <- hier_clust(num_clusters = 3) %>%
+  spec <- hier_clust(num_clusters = 3) |>
     set_engine("stats")
 
   res <- fit(spec, ~., iris)
@@ -53,8 +53,15 @@ test_that("extract_centroids() works", {
 
   expect_identical(
     colnames(centroids),
-    c(".cluster", "Sepal.Length", "Sepal.Width", "Petal.Length",
-      "Petal.Width", "Speciesversicolor", "Speciesvirginica")
+    c(
+      ".cluster",
+      "Sepal.Length",
+      "Sepal.Width",
+      "Petal.Length",
+      "Petal.Width",
+      "Speciesversicolor",
+      "Speciesvirginica"
+    )
   )
 
   expect_identical(
@@ -65,7 +72,7 @@ test_that("extract_centroids() works", {
 
 test_that("extract_cluster_assignment() works", {
   set.seed(1234)
-  spec <- hier_clust(num_clusters = 3) %>%
+  spec <- hier_clust(num_clusters = 3) |>
     set_engine("stats")
 
   res <- fit(spec, ~., iris)
@@ -73,7 +80,9 @@ test_that("extract_cluster_assignment() works", {
   clusters <- extract_cluster_assignment(res)
 
   expected <- vctrs::vec_cbind(
-    tibble::tibble(.cluster = factor(paste0("Cluster_", cutree(res$fit, k = 3))))
+    tibble::tibble(
+      .cluster = factor(paste0("Cluster_", cutree(res$fit, k = 3)))
+    )
   )
 
   expect_identical(

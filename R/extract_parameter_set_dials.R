@@ -6,10 +6,10 @@ extract_parameter_set_dials.cluster_spec <- function(x, ...) {
 
   res <-
     dplyr::inner_join(
-      tuning_param %>% dplyr::select(-tunable, -component_id),
+      tuning_param |> dplyr::select(-tunable, -component_id),
       all_args,
       by = c("name", "source", "component")
-    ) %>%
+    ) |>
     dplyr::mutate(object = map(call_info, eval_call_info))
 
   dials::parameters_constr(
@@ -36,11 +36,7 @@ eval_call_info <- function(x) {
       silent = TRUE
     )
     if (inherits(res, "try-error")) {
-      rlang::abort(
-        glue::glue(
-          "Error when calling {x$fun}(): {as.character(res)}"
-        )
-      )
+      cli::cli_abort("Error when calling {.fn {x$fun}}: {as.character(res)}")
     }
   } else {
     res <- NA
