@@ -74,6 +74,7 @@ test_that("prefix is passed in extract_cluster_assignment()", {
 })
 
 test_that("extract_cluster_assignment() errors for freq_itemsets() cluster spec", {
+  skip_if_not_installed("arules")
   fi_spec <- freq_itemsets(min_support = 0.5)
 
   expect_snapshot(

@@ -75,6 +75,7 @@ test_that("prefix is passed in extract_centroids()", {
 
 test_that("extract_centroids errors for freq_itemsets", {
   set.seed(1234)
+  skip_if_not_installed("arules")
   fi_fit <- freq_itemsets(min_support = 0.5) %>%
     set_engine("arules") %>%
     fit(~., toy_df %>% dplyr::mutate(across(everything(), as.numeric)))

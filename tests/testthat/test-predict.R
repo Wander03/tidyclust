@@ -66,6 +66,7 @@ test_that("prefix is passed in predict()", {
 })
 
 test_that("predict() errors for cluster spec for freq_itemsets", {
+  skip_if_not_installed("arules")
   spec <- tidyclust::freq_itemsets(min_support = 0.5)
 
   expect_snapshot(

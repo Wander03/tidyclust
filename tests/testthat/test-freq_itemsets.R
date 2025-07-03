@@ -15,6 +15,7 @@ toy_pred <- data.frame(
 )
 
 test_that("primary arguments", {
+  skip_if_not_installed("arules")
   basic <- freq_itemsets(mode = "partition")
   basic_arules <- translate_tidyclust(basic %>% set_engine("arules"))
   expect_equal(
@@ -38,6 +39,7 @@ test_that("primary arguments", {
 })
 
 test_that("bad input", {
+  skip_if_not_installed("arules")
   expect_snapshot(error = TRUE, freq_itemsets(mode = "bogus"))
   expect_snapshot(error = TRUE, {
     bt <- freq_itemsets(min_support = 0.05, mining_method = "bogus")
@@ -53,6 +55,7 @@ test_that("bad input", {
 
 test_that("clusters", {
   set.seed(1234)
+  skip_if_not_installed("arules")
   fi_fit <- freq_itemsets(min_support = 0.5, mining_method = "apriori") %>%
     set_engine("arules") %>%
     fit(~., toy_df %>% dplyr::mutate(across(everything(), as.numeric)))
@@ -79,6 +82,7 @@ test_that("clusters", {
 
 test_that("predict", {
   set.seed(1234)
+  skip_if_not_installed("arules")
   fi_fit <- freq_itemsets(min_support = 0.5, mining_method = "apriori") %>%
     set_engine("arules") %>%
     fit(~., toy_df)
@@ -99,6 +103,7 @@ test_that("predict", {
 
 test_that("extract_centroids work", {
   set.seed(1234)
+  skip_if_not_installed("arules")
   fi_fit <- freq_itemsets(min_support = 0.5) %>%
     set_engine("arules") %>%
     fit(~., toy_df %>% dplyr::mutate(across(everything(), as.numeric)))
@@ -107,6 +112,7 @@ test_that("extract_centroids work", {
 })
 
 test_that("Right classes", {
+  skip_if_not_installed("arules")
   expect_equal(
     class(freq_itemsets()),
     c("freq_itemsets", "cluster_spec", "unsupervised_spec")
@@ -114,6 +120,7 @@ test_that("Right classes", {
 })
 
 test_that("printing", {
+  skip_if_not_installed("arules")
   expect_snapshot(
     freq_itemsets()
   )
@@ -123,6 +130,7 @@ test_that("printing", {
 })
 
 test_that("updating", {
+  skip_if_not_installed("arules")
   expect_snapshot(
     freq_itemsets(min_support = 0.5) %>%
       update(min_support = tune())
@@ -130,6 +138,7 @@ test_that("updating", {
 })
 
 test_that("errors if `min_support` isn't specified", {
+  skip_if_not_installed("arules")
   expect_snapshot(
     error = TRUE,
     freq_itemsets() %>%

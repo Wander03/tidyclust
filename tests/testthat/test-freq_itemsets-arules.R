@@ -16,6 +16,7 @@ toy_pred <- data.frame(
 
 test_that("fitting", {
   set.seed(1234)
+  skip_if_not_installed("arules")
   spec <- freq_itemsets(min_support = 0.5) %>%
     set_engine("arules")
 
@@ -26,6 +27,7 @@ test_that("fitting", {
 
 test_that("predicting", {
   set.seed(1234)
+  skip_if_not_installed("arules")
   spec <- freq_itemsets(min_support = 0.5) %>%
     set_engine("arules")
 
@@ -41,6 +43,7 @@ test_that("predicting", {
 
 test_that("extract_centroids works", {
   set.seed(1234)
+  skip_if_not_installed("arules")
   fi_fit <- freq_itemsets(min_support = 0.5) %>%
     set_engine("arules") %>%
     fit(~., toy_df %>% dplyr::mutate(across(everything(), as.numeric)))
@@ -50,6 +53,7 @@ test_that("extract_centroids works", {
 
 test_that("extract_cluster_assignment() works", {
   set.seed(1234)
+  skip_if_not_installed("arules")
   fi_fit <- freq_itemsets(min_support = 0.5, mining_method = "eclat") %>%
     set_engine("arules") %>%
     fit(~., toy_df %>% dplyr::mutate(across(everything(), as.numeric)))
