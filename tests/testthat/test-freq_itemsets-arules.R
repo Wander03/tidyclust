@@ -1,17 +1,17 @@
 toy_df <- data.frame(
-  'beer'    = c(F, T, T, T, F),
-  'milk'    = c(T, F, T, T, T),
-  'bread'   = c(T, T, F, T, T),
-  'diapers' = c(T, T, T, T, T),
-  'eggs'    = c(F, T, F, F, F)
+  "beer"    = c(FALSE, TRUE, TRUE, TRUE, FALSE),
+  "milk"    = c(TRUE, FALSE, TRUE, TRUE, TRUE),
+  "bread"   = c(TRUE, TRUE, FALSE, TRUE, TRUE),
+  "diapers" = c(TRUE, TRUE, TRUE, TRUE, TRUE),
+  "eggs"    = c(FALSE, TRUE, FALSE, FALSE, FALSE)
 )
 
 toy_pred <- data.frame(
-  'beer'    = c(F),
-  'milk'    = c(NA),
-  'bread'   = c(T),
-  'diapers' = c(T),
-  'eggs'    = c(F)
+  "beer"    = FALSE,
+  "milk"    = NA,
+  "bread"   = TRUE,
+  "diapers" = TRUE,
+  "eggs"    = FALSE
 )
 
 test_that("fitting", {
