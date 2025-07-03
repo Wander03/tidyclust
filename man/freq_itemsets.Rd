@@ -54,7 +54,7 @@ If no relevant itemsets are found, the item's global support from the training d
 
 The \code{predict()} output provides a nested data frame per transaction, including \code{item},
 \code{.obs_item} (observed status), and \code{.pred_item} (predicted values).
-The \code{extract_predictions()} helper function can reformat this nested output into a single data frame.
+The \code{extract_itemset_predictions()} helper function can reformat this nested output into a single data frame.
 }
 }
 \examples{

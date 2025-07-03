@@ -251,11 +251,11 @@ the `:::`.
 
 Additionally, we can extract the nested predicted output to be formatted in a 
 single data frame, filling in the `NA` values with their predicted value using
-`extract_predictions()`.
+`extract_itemset_predictions()`.
 
 ```{r}
 results %>%
-  extract_predictions
+  extract_itemset_predictions
 ```
 
 ## Evaluation Metrics
