@@ -40,13 +40,13 @@ test_that("primary arguments", {
 test_that("bad input", {
   expect_snapshot(error = TRUE, freq_itemsets(mode = "bogus"))
   expect_snapshot(error = TRUE, {
-    bt <- freq_itemsets(mining_method = "bogus")
+    bt <- freq_itemsets(min_support = 0.05, mining_method = "bogus")
     fit(bt, ~ ., toy_df)
     })
   expect_snapshot(error = TRUE, {
-    bt <- freq_itemsets(min_support = -1) %>% set_engine("arules")
+    bt <- freq_itemsets(min_support = -1, mining_method = "eclat") %>% set_engine("arules")
     fit(bt, ~ ., toy_df)
-  })
+    })
   expect_snapshot(error = TRUE, translate_tidyclust(freq_itemsets(), engine = NULL))
   expect_snapshot(error = TRUE, translate_tidyclust(freq_itemsets(formula = ~x)))
 })

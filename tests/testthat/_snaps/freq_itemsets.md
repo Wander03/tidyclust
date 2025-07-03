@@ -9,7 +9,7 @@
 ---
 
     Code
-      bt <- freq_itemsets(mining_method = "bogus")
+      bt <- freq_itemsets(min_support = 0.05, mining_method = "bogus")
       fit(bt, ~., toy_df)
     Condition
       Error in `check_args()`:
@@ -18,7 +18,8 @@
 ---
 
     Code
-      bt <- freq_itemsets(min_support = -1) %>% set_engine("arules")
+      bt <- freq_itemsets(min_support = -1, mining_method = "eclat") %>% set_engine(
+        "arules")
       fit(bt, ~., toy_df)
     Condition
       Error in `check_args()`:
@@ -45,9 +46,8 @@
     Code
       extract_centroids(fi_fit)
     Condition
-      Error in `extract_centroids()`:
-      ! Centroids are not usfeul for frequent itemsets, we suggust looking at the frequent itemsets directly.
-       Please use arules::inspect() on the fit of your cluster specification.
+      Error in `extract_fit_summary()`:
+      ! Centroids are not usfeul for frequent itemsets, we suggust looking at the frequent itemsets directly. Please use arules::inspect() on the fit of your cluster specification.
 
 # printing
 
@@ -95,6 +95,6 @@
     Code
       freq_itemsets() %>% set_engine("arules") %>% fit(~., data = toy_df)
     Condition
-      Error in `fit()`:
+      Error in `tidyclust::.freq_itemsets_fit_arules()`:
       ! Please specify `min_support` to be able to fit specification.
 

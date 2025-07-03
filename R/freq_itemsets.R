@@ -138,12 +138,12 @@ check_args.freq_itemsets <- function(object) {
   args <- lapply(object$args, rlang::eval_tidy)
 
   if (all(is.numeric(args$min_support)) && (any(args$min_support < 0) || any(args$min_support > 1))) {
-    rlang::abort("The minimum support should be between 0 and 1.")
+    cli::cli_abort("The minimum support should be between 0 and 1.")
   }
 
   if (all(is.character(args$mining_method)) &&
       !all(args$mining_method %in% c("apriori", "eclat"))) {
-    rlang::abort("The mining method should be either 'apriori' or 'eclat'.")
+    cli::cli_abort("The mining method should be either 'apriori' or 'eclat'.")
   }
 
   invisible(object)
@@ -174,9 +174,8 @@ translate_tidyclust.freq_itemsets <- function(x, engine = x$engine, ...) {
                                       mining_method = NULL) {
 
   if (is.null(min_support)) {
-    rlang::abort(
-      "Please specify `min_support` to be able to fit specification.",
-      call = call("fit")
+    cli::cli_abort(
+      "Please specify `min_support` to be able to fit specification."
     )
   }
 
