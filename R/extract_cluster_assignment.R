@@ -165,7 +165,7 @@ extract_cluster_assignment.itemsets <- function(object, ...) {
   items <- attr(object, "item_names")
   itemsets <- arules::DATAFRAME(object)
 
-  itemset_list <- lapply(strsplit(gsub("[{}]", "", itemsets$items), ","), stringr::str_trim)
+  itemset_list <- lapply(strsplit(gsub("[{}]", "", itemsets$items), ","), trimws)
   support <- itemsets$support
   clusters <- numeric(length(items))
   changed <- TRUE  # Flag to track convergence

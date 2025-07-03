@@ -82,9 +82,9 @@ augment_itemset_predict <- function(pred_output, truth_output) {
   # Extract all predictions (bind all .pred_cluster dataframes)
   preds_df <- dplyr::bind_rows(pred_output$.pred_cluster, .id = "row_id") %>%
     dplyr::filter(!is.na(.pred_item)) %>%  # Keep only rows with predictions
-    dplyr::mutate(item = stringr::str_remove_all(item, "`")) %>% # Remove backticks from item names
-    dplyr::mutate(item = stringr::str_remove_all(item, "TRUE")) %>% # Remove TRUE from item names
-    dplyr::mutate(item = stringr::str_remove_all(item, "FALSE")) %>% # Remove FALSE from item names
+    dplyr::mutate(
+      item = gsub("`|TRUE|FALSE", "", item) # Remove backticks, TRUE, and FALSE from item names
+    )
     dplyr::select(row_id, item, preds = .pred_item)  # Standardize column names
 
   # Pivot truth data to long format (to match predictions)

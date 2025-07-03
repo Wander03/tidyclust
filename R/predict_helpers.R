@@ -184,7 +184,7 @@ itemsets_predict_helper <- function(object, new_data, ..., prefix = "Cluster_") 
   # Extract frequent itemsets and their supports
   items <- attr(object, "item_names")
   itemsets <- arules::DATAFRAME(object)
-  frequent_itemsets <- lapply(strsplit(gsub("[{}]", "", itemsets$items), ","), stringr::str_trim)
+  frequent_itemsets <- lapply(strsplit(gsub("[{}]", "", itemsets$items), ","), trimws)
   supports <- itemsets$support
 
   # Calculate global support for each item (fallback)
@@ -239,7 +239,7 @@ itemsets_predict_helper <- function(object, new_data, ..., prefix = "Cluster_") 
 
     # Create result data frame
     data.frame(
-      item = stringr::str_remove_all(items, "`"), # Remove backticks from item names
+      item = gsub("`", "", items), # Remove backticks from item names
       .obs_item = unlist(row_data),
       .pred_item = pred_values,
       row.names = NULL
