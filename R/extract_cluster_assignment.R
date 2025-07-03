@@ -270,7 +270,7 @@ item_assignment_tibble_w_outliers <- function(clusters,
   unique_non_zero_clusters <- unique(non_zero_clusters)
 
   # Map each unique non-zero cluster to a new cluster starting from Cluster_1
-  cluster_map <- setNames(paste0(prefix, seq_along(unique_non_zero_clusters)), unique_non_zero_clusters)
+  cluster_map <- stats::setNames(paste0(prefix, seq_along(unique_non_zero_clusters)), unique_non_zero_clusters)
 
   # Assign the corresponding cluster names to the non-zero clusters
   res[clusters != 0] <- cluster_map[as.character(non_zero_clusters)]
