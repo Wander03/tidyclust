@@ -28,6 +28,54 @@
 #'     \item `truth`: The true value for the item from `truth_output`.
 #'   }
 #'   This output is suitable for direct use with `yardstick` metric functions.
+#'
+#' @examples
+#' toy_df <- data.frame(
+#' "beer"    = c(FALSE, TRUE, TRUE, TRUE, FALSE),
+#' "milk"    = c(TRUE, FALSE, TRUE, TRUE, TRUE),
+#' "bread"   = c(TRUE, TRUE, FALSE, TRUE, TRUE),
+#' "diapers" = c(TRUE, TRUE, TRUE, TRUE, TRUE),
+#' "eggs"    = c(FALSE, TRUE, FALSE, FALSE, FALSE)
+#' )
+#'
+#' new_data <- data.frame(
+#' "beer"    = NA,
+#' "milk"    = TRUE,
+#' "bread"   = TRUE,
+#' "diapers" = TRUE,
+#' "eggs"    = FALSE
+#' )
+#'
+#' truth_df <- data.frame(
+#' "beer"    = FALSE,
+#' "milk"    = TRUE,
+#' "bread"   = TRUE,
+#' "diapers" = TRUE,
+#' "eggs"    = FALSE
+#' )
+#'
+#' fi_spec <- freq_itemsets(
+#'  min_support = 0.05,
+#'  mining_method = "eclat"
+#'  ) |>
+#'  set_engine("arules") |>
+#'  set_mode("partition")
+#'
+#' fi_fit <- fi_spec |>
+#'  fit(~ .,
+#'     data = toy_df
+#'  )
+#'
+#' aug_pred <- fi_fit |>
+#'  predict(new_data, type = "raw") |>
+#'  augment_itemset_predict(truth_output = truth_df)
+#'
+#' aug_pred
+#'
+#' # Example use of formatted output
+#' aug_pred |>
+#'   yardstick::rmse(truth, preds)
+#'
 #' @export
 
 augment_itemset_predict <- function(pred_output, truth_output) {
@@ -35,6 +83,8 @@ augment_itemset_predict <- function(pred_output, truth_output) {
   preds_df <- dplyr::bind_rows(pred_output$.pred_cluster, .id = "row_id") %>%
     dplyr::filter(!is.na(.pred_item)) %>%  # Keep only rows with predictions
     dplyr::mutate(item = stringr::str_remove_all(item, "`")) %>% # Remove backticks from item names
+    dplyr::mutate(item = stringr::str_remove_all(item, "TRUE")) %>% # Remove TRUE from item names
+    dplyr::mutate(item = stringr::str_remove_all(item, "FALSE")) %>% # Remove FALSE from item names
     dplyr::select(row_id, item, preds = .pred_item)  # Standardize column names
 
   # Pivot truth data to long format (to match predictions)
@@ -44,7 +94,8 @@ augment_itemset_predict <- function(pred_output, truth_output) {
       cols = -row_id,
       names_to = "item",
       values_to = "truth_value"
-    )
+    ) %>%
+    dplyr::mutate(truth_value = as.numeric(truth_value))
 
   # Join predictions with truth (inner join to keep only predicted items)
   result <- preds_df %>%

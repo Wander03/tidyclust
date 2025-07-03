@@ -278,13 +278,13 @@ truth_output <-  na_result$truth # In a real scenario, this would be a separate 
 # Example for RMSE (using type = 'raw')
 fi_fit %>%
   predict(new_data = new_data, type = 'raw') %>%
-  augment_itemset_predict(truth = truth_output) %>%
+  augment_itemset_predict(truth_output = truth_output) %>%
   yardstick::rmse(truth, preds)
 
 # Example for Precision (using type = 'cluster')
 fi_fit %>%
   predict(new_data = new_data, type = 'cluster') %>%
-  augment_itemset_predict(truth = truth_output) %>%
+  augment_itemset_predict(truth_output = truth_output) %>%
   dplyr::mutate(
     truth = factor(truth, levels = c(0, 1)),
     preds = factor(preds, levels = c(0, 1))
