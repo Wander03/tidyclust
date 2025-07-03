@@ -37,7 +37,7 @@
 #'
 #' The `predict()` output provides a nested data frame per transaction, including `item`,
 #' `.obs_item` (observed status), and `.pred_item` (predicted values).
-#' The `extract_predictions()` helper function can reformat this nested output into a single data frame.
+#' The `extract_itemset_predictions()` helper function can reformat this nested output into a single data frame.
 #'
 #' @return A `freq_itemsets` association specification.
 #'
