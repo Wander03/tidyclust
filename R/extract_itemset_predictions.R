@@ -47,18 +47,27 @@ extract_itemset_predictions <- function(pred_output) {
   # Extract the list of data frames from the single column
   data_frames <- pred_output$.pred_cluster
 
-  # Process each observation and combine results using reduce
-  result_df <- data_frames %>%
-    purrr::reduce(.f = ~ {
-      # Process each observation (data frame)
-      processed <- .y %>%
-        dplyr::mutate(value = ifelse(!is.na(.obs_item), .obs_item, .pred_item)) %>%
-        dplyr::select(item, value) %>%
-        tidyr::pivot_wider(names_from = item, values_from = value)
+  # Define the function to be passed to reduce instead of using lambda
+  processing_function <- function(.x_acc, .y_current) {
+    # .x_acc is the accumulated result (the first argument to .f)
+    # .y_current is the current data frame from data_frames (the second argument to .f)
 
-      # Combine the processed data frame with the accumulated results
-      dplyr::bind_rows(.x, processed)
-    }, .init = NULL)
+    # Process each data frame
+    processed <- .y_current %>%
+      dplyr::mutate(value = ifelse(!is.na(.obs_item), .obs_item, .pred_item)) %>%
+      dplyr::select(item, value) %>%
+      tidyr::pivot_wider(names_from = item, values_from = value)
+
+    # Combine the processed data frame with the results
+    dplyr::bind_rows(.x_acc, processed)
+  }
+
+  # Process each observation and combine results using reduce
+  result_df <- reduce(
+    .x = data_frames,
+    .f = processing_function,
+    .init = NULL
+  )
 
   return(result_df)
 }
